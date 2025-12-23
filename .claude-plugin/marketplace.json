@@ -1,70 +1,37 @@
 {
-  "version": "1.0.0",
   "name": "ncp-skills",
-  "description": "Official JavaScript/TypeScript skills for NCP and AI agents",
-  "repository": "https://github.com/portel-dev/skills",
-  "author": "NCP Team",
-  "license": "Apache-2.0",
-  "marketplaces": [
+  "owner": {
+    "name": "NCP Team"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Official JavaScript/TypeScript skills for NCP and AI agents",
+    "repository": "https://github.com/portel-dev/skills",
+    "license": "Apache-2.0"
+  },
+  "plugins": [
     {
       "name": "document-skills",
       "description": "Document creation and manipulation with JavaScript",
+      "source": "./skills",
+      "strict": false,
       "skills": [
-        {
-          "name": "pdf",
-          "path": "./skills/pdf",
-          "description": "PDF creation and manipulation with pdf-lib",
-          "tags": ["document", "pdf", "generation"]
-        },
-        {
-          "name": "docx",
-          "path": "./skills/docx",
-          "description": "Word document creation with docx library",
-          "tags": ["document", "word", "docx", "generation"]
-        },
-        {
-          "name": "pptx",
-          "path": "./skills/pptx",
-          "description": "PowerPoint presentation creation with pptxgenjs",
-          "tags": ["document", "powerpoint", "presentation"]
-        },
-        {
-          "name": "xlsx",
-          "path": "./skills/xlsx",
-          "description": "Excel spreadsheet creation with xlsx (SheetJS)",
-          "tags": ["document", "excel", "spreadsheet", "data"]
-        }
+        "./skills/pdf",
+        "./skills/docx",
+        "./skills/pptx",
+        "./skills/xlsx"
       ]
     },
     {
       "name": "development-skills",
       "description": "Skills for building MCPs, Photons, and Skills",
+      "source": "./skills",
+      "strict": false,
       "skills": [
-        {
-          "name": "photon-builder",
-          "path": "./skills/photon-builder",
-          "description": "Create lightweight single-file Photon MCPs",
-          "tags": ["development", "mcp", "photon", "api"]
-        },
-        {
-          "name": "mcp-builder",
-          "path": "./skills/mcp-builder",
-          "description": "Build full-featured MCP servers",
-          "tags": ["development", "mcp", "server", "protocol"]
-        },
-        {
-          "name": "skill-creator",
-          "path": "./skills/skill-creator",
-          "description": "Meta-skill for creating new skills",
-          "tags": ["meta", "development", "documentation"]
-        }
+        "./skills/photon-builder",
+        "./skills/mcp-builder",
+        "./skills/skill-creator"
       ]
     }
-  ],
-  "stats": {
-    "totalSkills": 7,
-    "totalLines": 4068,
-    "languages": ["JavaScript", "TypeScript"],
-    "compatible": ["NCP", "Claude Desktop", "Claude API"]
-  }
+  ]
 }
