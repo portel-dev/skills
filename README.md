@@ -35,8 +35,28 @@ Skills are markdown-based instruction sets that contain:
 
 ## 🚀 Quick Start
 
-### For NCP Users (Marketplace Installation)
+### Claude Code
 
+You can register this repository as a Claude Code Plugin marketplace:
+```
+/plugin marketplace add portel-dev/skills
+```
+
+Then, to install a specific set of skills:
+1. Select `Browse and install plugins`
+2. Select `ncp-skills`
+3. Select `document-skills` or `development-skills`
+4. Select `Install now`
+
+Alternatively, directly install either Plugin via:
+```
+/plugin install document-skills@ncp-skills
+/plugin install development-skills@ncp-skills
+```
+
+### NCP (Natural Context Provider)
+
+NCP uses the same marketplace format as Claude Code:
 ```bash
 # Add the skills marketplace
 ncp skills marketplace add portel-dev/skills
@@ -48,38 +68,19 @@ ncp skills search pdf
 ncp skills add pdf
 ```
 
-### For Claude Code Users (Marketplace Installation)
+### Claude.ai
 
-```json
-// Claude Code config
-{
-  "skillsMarketplaces": [
-    {
-      "name": "ncp-skills",
-      "enabled": true,
-      "source": "portel-dev/skills",
-      "sourceType": "github"
-    }
-  ]
-}
-```
+To use skills from this repository:
+1. Download the skill folder as ZIP
+2. Go to Claude.ai and navigate to Skills settings
+3. Click "Upload skill" and select the ZIP file
+4. The skill will be available for use
 
-### For Claude Desktop & Other AI Clients (Manual Installation)
+See [Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude) for detailed instructions.
 
-Download individual skills as ZIP files and drag-and-drop:
+### Claude API
 
-```bash
-# Download entire repository
-curl -L https://github.com/portel-dev/skills/archive/refs/heads/main.zip -o ncp-skills.zip
-
-# Extract specific skill
-unzip ncp-skills.zip "*/skills/pdf/*"
-
-# Or download specific skill markdown
-curl -O https://raw.githubusercontent.com/portel-dev/skills/main/skills/pdf/SKILL.md
-```
-
-Then drag-and-drop the skill folder or SKILL.md file into Claude Desktop.
+You can upload custom skills via the Claude API. See the [Skills API Quickstart](https://docs.claude.com/en/api/skills-guide#creating-a-skill) for more.
 
 ## 📖 Skill Format
 
