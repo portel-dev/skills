@@ -35,23 +35,20 @@ Skills are markdown-based instruction sets that contain:
 
 ## 🚀 Quick Start
 
-### Using Skills in NCP
+### For NCP Users (Marketplace Installation)
 
 ```bash
-# 1. Install NCP
-npm install -g ncp
+# Add the skills marketplace
+ncp skills marketplace add portel-dev/skills
 
-# 2. Search for a skill
+# Search for skills
 ncp skills search pdf
 
-# 3. Install a skill
+# Install a skill
 ncp skills add pdf
-
-# 4. Use in code mode
-# AI reads the skill and applies the patterns
 ```
 
-### Using Skills in Claude Desktop
+### For Claude Desktop Users (Marketplace Installation)
 
 ```json
 // ~/.claude/config.json
@@ -67,20 +64,20 @@ ncp skills add pdf
 }
 ```
 
-### Using Skills in Code
+### For Other AI Clients (Manual Installation)
 
-```javascript
-// AI can read skills dynamically
-const skillContent = await skills.read({ 
-  skill_name: 'pdf',
-  depth: 2  // 0=names, 1=descriptions, 2=full content
-});
+Download individual skills as ZIP files and drag-and-drop into your AI client:
 
-// Then apply patterns from the skill
-const { PDFDocument, rgb } = require('pdf-lib');
-const pdfDoc = await PDFDocument.create();
-// ... use patterns from skill
+```bash
+# Download a skill
+curl -L https://github.com/portel-dev/skills/archive/refs/heads/main.zip -o skills.zip
+unzip skills.zip "*/skills/pdf/*"
+
+# Or download specific skill markdown
+curl -O https://raw.githubusercontent.com/portel-dev/skills/main/skills/pdf/SKILL.md
 ```
+
+Then drag-and-drop the skill folder or SKILL.md file into Claude Desktop or your AI client.
 
 ## 📖 Skill Format
 
@@ -200,25 +197,15 @@ node -e "const { PDFDocument } = require('pdf-lib'); console.log('✅ PDF skill 
 - ✅ **Modern** - ES6+, async/await
 - ✅ **Compatible** - Works with Anthropic's format
 
-## 📦 Installation
-
-### As User
+## 🛠️ Development Setup
 
 ```bash
-# Clone skills to NCP directory
-git clone https://github.com/portel-dev/skills.git ~/.ncp/skills-repo
-
-# Or install specific skill
-curl -o ~/.ncp/skills/pdf/SKILL.md \
-  https://raw.githubusercontent.com/portel-dev/skills/main/skills/pdf/SKILL.md
-```
-
-### As Developer
-
-```bash
+# Clone the repository
 git clone https://github.com/portel-dev/skills.git
 cd skills
-npm install  # Install test dependencies
+
+# Skills are pure markdown - no dependencies needed
+# Each skill is self-contained in its SKILL.md file
 ```
 
 ## 🤝 Contributing
@@ -246,11 +233,7 @@ Individual skills may have additional licenses specified in their frontmatter.
 - **Skills Repository**: [github.com/portel-dev/skills](https://github.com/portel-dev/skills)
 - **Contact**: [arul@luracast.com](mailto:arul@luracast.com)
 
-## ⭐ Star History
-
-If you find these skills useful, please star the repository!
-
 ---
 
-**Built with ❤️ by the NCP community**
+**NCP Skills** - JavaScript/TypeScript skills for AI agents
 
