@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "name": "skills",
+  "description": "JavaScript/TypeScript skills for AI agents",
+  "marketplaces": [
+    {
+      "name": "document-skills",
+      "description": "Document creation and manipulation with JavaScript",
+      "plugins": [
+        {
+          "name": "document-skills",
+          "source": "./skills/document-skills",
+          "skills": [
+            "./skills/pdf",
+            "./skills/docx",
+            "./skills/pptx",
+            "./skills/xlsx"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "example-skills",
+      "description": "Example and creative skills",
+      "plugins": [
+        {
+          "name": "example-skills",
+          "source": "./skills/example-skills",
+          "skills": [
+            "./skills/mcp-builder",
+            "./skills/canvas-design",
+            "./skills/algorithmic-art"
+          ]
+        }
+      ]
+    }
+  ]
+}
