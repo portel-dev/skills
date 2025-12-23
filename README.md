@@ -2,7 +2,7 @@
 
 **Official skills repository for NCP (Natural Context Provider)**
 
-JavaScript/TypeScript skills for AI agents. These skills teach Claude, GPT, and other AI agents how to perform specific tasks using executable code patterns.
+Skills for AI agents that teach them to perform specific tasks. Code examples use JavaScript/TypeScript for execution in NCP and Claude Code environments.
 
 ## 🎯 What are Skills?
 
@@ -178,11 +178,11 @@ cd skills/pdf
 node -e "const { PDFDocument } = require('pdf-lib'); console.log('✅ PDF skill works')"
 ```
 
-## 🌟 Why JavaScript Skills?
+## 🌟 Why JavaScript/TypeScript Implementation?
 
-### vs Python Skills (Anthropic)
+### vs Python Implementation (Anthropic)
 
-| Feature | Python Skills | JavaScript Skills (NCP) |
+| Feature | Python-based | JavaScript-based (NCP) |
 |---------|--------------|-------------------------|
 | Execution | Requires Python | Native JavaScript |
 | Installation | pip + system deps | npm only |
@@ -193,12 +193,12 @@ node -e "const { PDFDocument } = require('pdf-lib'); console.log('✅ PDF skill 
 
 ### Benefits
 
-- ✅ **Zero setup** - Works immediately
-- ✅ **Fast** - Native JavaScript performance
-- ✅ **Portable** - One ecosystem (npm)
-- ✅ **Type-safe** - TypeScript support
-- ✅ **Modern** - ES6+, async/await
-- ✅ **Compatible** - Works with Anthropic's format
+- ✅ **Zero setup** - Works immediately in Node.js environments
+- ✅ **Fast** - Native V8 performance
+- ✅ **Portable** - Single ecosystem (npm)
+- ✅ **Type-safe** - Full TypeScript support
+- ✅ **Modern** - ES6+, async/await, promises
+- ✅ **Compatible** - Works with Anthropic's skill format
 
 ## 🛠️ Development Setup
 
@@ -238,5 +238,5 @@ Individual skills may have additional licenses specified in their frontmatter.
 
 ---
 
-**NCP Skills** - JavaScript/TypeScript skills for AI agents
+**NCP Skills** - Teaching AI agents through executable patterns
 
