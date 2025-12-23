@@ -1,6 +1,6 @@
 # NCP Skills
 
-**Official skills repository for NCP (Nex Context Protocol)**
+**Official skills repository for NCP (Natural Context Provider)**
 
 JavaScript/TypeScript skills for AI agents. These skills teach Claude, GPT, and other AI agents how to perform specific tasks using executable code patterns.
 
@@ -39,7 +39,7 @@ Skills are markdown-based instruction sets that contain:
 
 ```bash
 # 1. Install NCP
-npm install -g @portel/ncp
+npm install -g ncp
 
 # 2. Search for a skill
 ncp skills search pdf
@@ -242,9 +242,9 @@ Individual skills may have additional licenses specified in their frontmatter.
 ## 🔗 Links
 
 - **NCP Repository**: [github.com/portel-dev/ncp](https://github.com/portel-dev/ncp)
-- **Documentation**: [ncp.dev/docs](https://ncp.dev/docs)
-- **Discord**: [discord.gg/ncp](https://discord.gg/ncp)
-- **Twitter**: [@ncp_dev](https://twitter.com/ncp_dev)
+- **npm Package**: [npmjs.com/package/ncp](https://www.npmjs.com/package/ncp)
+- **Skills Repository**: [github.com/portel-dev/skills](https://github.com/portel-dev/skills)
+- **Contact**: [arul@luracast.com](mailto:arul@luracast.com)
 
 ## ⭐ Star History
 
