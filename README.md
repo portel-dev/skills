@@ -48,10 +48,10 @@ ncp skills search pdf
 ncp skills add pdf
 ```
 
-### For Claude Desktop Users (Marketplace Installation)
+### For Claude Code Users (Marketplace Installation)
 
 ```json
-// ~/.claude/config.json
+// Claude Code config
 {
   "skillsMarketplaces": [
     {
@@ -64,20 +64,22 @@ ncp skills add pdf
 }
 ```
 
-### For Other AI Clients (Manual Installation)
+### For Claude Desktop & Other AI Clients (Manual Installation)
 
-Download individual skills as ZIP files and drag-and-drop into your AI client:
+Download individual skills as ZIP files and drag-and-drop:
 
 ```bash
-# Download a skill
-curl -L https://github.com/portel-dev/skills/archive/refs/heads/main.zip -o skills.zip
-unzip skills.zip "*/skills/pdf/*"
+# Download entire repository
+curl -L https://github.com/portel-dev/skills/archive/refs/heads/main.zip -o ncp-skills.zip
+
+# Extract specific skill
+unzip ncp-skills.zip "*/skills/pdf/*"
 
 # Or download specific skill markdown
 curl -O https://raw.githubusercontent.com/portel-dev/skills/main/skills/pdf/SKILL.md
 ```
 
-Then drag-and-drop the skill folder or SKILL.md file into Claude Desktop or your AI client.
+Then drag-and-drop the skill folder or SKILL.md file into Claude Desktop.
 
 ## 📖 Skill Format
 
