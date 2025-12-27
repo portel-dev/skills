@@ -1,0 +1,14 @@
+<evaluation>
+  <qa_pair>
+    <question>Find the repository that was archived in Q3 2023 and had previously been the most forked project in the organization. What was the primary programming language used in that repository?</question>
+    <answer>Python</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Among all bugs reported in January 2024 that were marked as critical priority, which assignee resolved the highest percentage of their assigned bugs within 48 hours? Provide the assignee's username.</question>
+    <answer>alex_eng</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Find the account that upgraded from the Starter to Enterprise plan in Q4 2023 and had the highest annual contract value. What industry does this account operate in?</question>
+    <answer>Healthcare</answer>
+  </qa_pair>
+</evaluation>

@@ -398,7 +398,31 @@ Evaluation files use XML format with `<qa_pair>` elements:
 
 ## Running Evaluations
 
-### Option 1: Manual Testing with Claude
+### Option 1: Using the TypeScript Evaluation Script (Recommended)
+
+This skill includes a TypeScript evaluation harness that works with NCP code-mode:
+
+```typescript
+import { runEvaluation, parseEvaluationXml } from './scripts/evaluation';
+
+// Read your evaluation XML file
+const xmlContent = await fs.readFile('./my_evaluation.xml', 'utf-8');
+
+// Get tools from your MCP namespace
+const tools = await myMcp.listTools();
+
+// Run evaluation
+const report = await runEvaluation(xmlContent, tools, myMcp);
+console.log(report);
+```
+
+The script:
+- Parses evaluation XML files
+- Runs each question through Claude with your MCP tools
+- Compares responses with expected answers
+- Generates a detailed markdown report
+
+### Option 2: Manual Testing with Claude
 
 The simplest way to evaluate your MCP server:
 
@@ -407,7 +431,7 @@ The simplest way to evaluate your MCP server:
 3. Compare responses with expected answers
 4. Document results and feedback
 
-### Option 2: Using mcp-evals (npm package)
+### Option 3: Using mcp-evals (npm package)
 
 For automated TypeScript-based evaluation:
 
@@ -417,7 +441,7 @@ npm install mcp-evals
 
 See: https://www.npmjs.com/package/mcp-evals
 
-### Option 3: Anthropic's Official Evaluation Harness
+### Option 4: Anthropic's Official Evaluation Harness
 
 For the full Python-based evaluation harness, see the official Anthropic skills repository:
 https://github.com/anthropics/anthropic-claude-skills
