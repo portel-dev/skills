@@ -306,6 +306,85 @@ export default class DeployWorkflow {
 }
 ```
 
+## Custom UIs (MCP Apps Protocol)
+
+Photons can have custom HTML UIs linked to tools. The runtime follows the MCP Apps standard (ext-apps).
+
+### Defining a UI
+
+Use `@ui` at class level to declare a template, then `@ui` at method level to link it:
+
+```typescript
+/**
+ * @name dashboard
+ * @ui main-view ./ui/dashboard.html
+ */
+export default class Dashboard {
+  /**
+   * Get dashboard data
+   * @ui main-view
+   * @format json
+   */
+  async getData(params: { range: string }) {
+    return { /* ... */ };
+  }
+}
+```
+
+### How It Works
+
+1. **`tools/list`** includes `_meta.ui.resourceUri` for linked methods:
+   ```json
+   {
+     "name": "dashboard/getData",
+     "_meta": {
+       "ui": { "resourceUri": "ui://dashboard/main-view" }
+     }
+   }
+   ```
+
+2. **`resources/list`** exposes UI templates with `text/html;profile=mcp-app` MIME type
+
+3. **`resources/read`** returns the HTML content for `ui://` URIs
+
+### Bridge APIs
+
+The runtime injects a platform compatibility bridge into UI iframes. Three APIs are available:
+
+- **`window.photon`** - Primary API: `callTool(name, args)`, `onResult(cb)`, `onProgress(cb)`, `theme`, `widgetState`
+- **`window.openai`** - ChatGPT Apps SDK compatibility: same `callTool`, plus `uploadFile`, `requestDisplayMode`
+- **`window.mcp`** - Generic MCP bridge: superset of photon API with `readResource(uri)`
+
+### Calling Tools from UI
+
+```javascript
+// callTool sends JSON-RPC tools/call to the host
+const result = await window.photon.callTool('dashboard/getData', { range: '7d' });
+```
+
+Tool calls use JSON-RPC 2.0 (`method: 'tools/call'`). Responses come back as JSON-RPC responses with matching `id`.
+
+### Receiving Tool Results
+
+When a linked-UI tool completes, the result broadcasts as `ui/notifications/tool-result` via SSE:
+
+```javascript
+window.photon.onResult((result) => {
+  // Update UI with new data
+  renderDashboard(result);
+});
+```
+
+### Theme Support
+
+The bridge applies theme tokens as CSS variables and sets `data-theme` attribute on `<html>`. Listen for changes:
+
+```javascript
+window.photon.onThemeChange((theme) => {
+  // 'light' or 'dark'
+});
+```
+
 ## Common Patterns
 
 ### API Client
