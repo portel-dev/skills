@@ -33,6 +33,15 @@
         "./skills/mcp-builder",
         "./skills/skill-creator"
       ]
+    },
+    {
+      "name": "media-skills",
+      "description": "Audio and media generation skills",
+      "source": "./skills",
+      "strict": false,
+      "skills": [
+        "./skills/qwen3-tts"
+      ]
     }
   ]
 }
