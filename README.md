@@ -1,6 +1,6 @@
-# NCP Skills
+# NCP Skillset
 
-**Official skills repository for NCP (Natural Context Provider)**
+**Official skillset repository for NCP (Natural Context Provider)**
 
 Skills for AI agents that teach them to perform specific tasks. Code examples use JavaScript/TypeScript for execution in NCP and Claude Code environments.
 
@@ -8,7 +8,7 @@ Skills for AI agents that teach them to perform specific tasks. Code examples us
 
 Skills are markdown-based instruction sets that contain:
 - **Code examples** - Copy-paste ready JavaScript/TypeScript
-- **Best practices** - Proven patterns and techniques  
+- **Best practices** - Proven patterns and techniques
 - **Real-world use cases** - Practical applications
 - **Progressive learning** - Simple to advanced examples
 
@@ -16,22 +16,29 @@ Skills are markdown-based instruction sets that contain:
 
 ### Document Processing
 
-| Skill | Description | Library | Lines |
-|-------|-------------|---------|-------|
-| **[pdf](skills/pdf)** | PDF creation and manipulation | pdf-lib | 542 |
-| **[docx](skills/docx)** | Word document generation | docx | 735 |
-| **[pptx](skills/pptx)** | PowerPoint presentations | pptxgenjs | 777 |
-| **[xlsx](skills/xlsx)** | Excel spreadsheets | xlsx (SheetJS) | 659 |
+| Skill | Description | Library |
+|-------|-------------|---------|
+| **[pdf](skills/pdf)** | PDF creation and manipulation | pdf-lib |
+| **[docx](skills/docx)** | Word document generation | docx |
+| **[pptx](skills/pptx)** | PowerPoint presentations | pptxgenjs |
+| **[xlsx](skills/xlsx)** | Excel spreadsheets | xlsx (SheetJS) |
 
 ### Development
 
-| Skill | Description | Lines |
-|-------|-------------|-------|
-| **[photon-builder](skills/photon-builder)** | Create lightweight Photon MCPs | 685 |
-| **[mcp-builder](skills/mcp-builder)** | Build full MCP servers | 236 |
-| **[skill-creator](skills/skill-creator)** | Meta-skill for creating skills | 434 |
+| Skill | Description |
+|-------|-------------|
+| **[photon-builder](skills/photon-builder)** | Create lightweight Photon MCPs |
+| **[photon-visualizer](skills/photon-visualizer)** | Generate Mermaid diagrams for Photons |
+| **[mcp-builder](skills/mcp-builder)** | Build full MCP servers |
+| **[skill-creator](skills/skill-creator)** | Meta-skill for creating skills |
 
-### Total: **4,068 lines** of production-ready skills
+### Media Production
+
+| Skill | Description |
+|-------|-------------|
+| **[video](skills/video)** | Programmatic video creation with Remotion |
+| **[audio](skills/audio)** | Audio processing — Whisper, waveform, post-processing |
+| **[qwen3-tts](skills/qwen3-tts)** | Text-to-speech with Qwen3 TTS on Apple Silicon |
 
 ## 🚀 Quick Start
 
@@ -39,27 +46,28 @@ Skills are markdown-based instruction sets that contain:
 
 You can register this repository as a Claude Code Plugin marketplace:
 ```
-/plugin marketplace add portel-dev/skills
+/plugin marketplace add portel-dev/skillset
 ```
 
 Then, to install a specific set of skills:
 1. Select `Browse and install plugins`
-2. Select `ncp-skills`
-3. Select `document-skills` or `development-skills`
+2. Select `ncp-skillset`
+3. Select `document-skills`, `development-skills`, or `media-skills`
 4. Select `Install now`
 
-Alternatively, directly install either Plugin via:
+Alternatively, directly install a Plugin via:
 ```
-/plugin install document-skills@ncp-skills
-/plugin install development-skills@ncp-skills
+/plugin install document-skills@ncp-skillset
+/plugin install development-skills@ncp-skillset
+/plugin install media-skills@ncp-skillset
 ```
 
 ### NCP (Natural Context Provider)
 
 NCP uses the same marketplace format as Claude Code:
 ```bash
-# Add the skills marketplace
-ncp skills marketplace add portel-dev/skills
+# Add the skillset marketplace
+ncp skills marketplace add portel-dev/skillset
 
 # Search for skills
 ncp skills search pdf
@@ -146,7 +154,7 @@ Real-world examples...
 ### Structure
 
 ```
-skills/
+skillset/
 ├── .claude-plugin/
 │   └── marketplace.json      # Skills registry
 ├── skills/
@@ -178,34 +186,12 @@ cd skills/pdf
 node -e "const { PDFDocument } = require('pdf-lib'); console.log('✅ PDF skill works')"
 ```
 
-## 🌟 Why JavaScript/TypeScript Implementation?
-
-### vs Python Implementation (Anthropic)
-
-| Feature | Python-based | JavaScript-based (NCP) |
-|---------|--------------|-------------------------|
-| Execution | Requires Python | Native JavaScript |
-| Installation | pip + system deps | npm only |
-| Performance | Interpreter overhead | Native V8 |
-| Compatibility | Platform-specific | Cross-platform |
-| Integration | External process | Direct execution |
-| Dependencies | Complex | Simple |
-
-### Benefits
-
-- ✅ **Zero setup** - Works immediately in Node.js environments
-- ✅ **Fast** - Native V8 performance
-- ✅ **Portable** - Single ecosystem (npm)
-- ✅ **Type-safe** - Full TypeScript support
-- ✅ **Modern** - ES6+, async/await, promises
-- ✅ **Compatible** - Works with Anthropic's skill format
-
 ## 🛠️ Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/portel-dev/skills.git
-cd skills
+git clone https://github.com/portel-dev/skillset.git
+cd skillset
 
 # Skills are pure markdown - no dependencies needed
 # Each skill is self-contained in its SKILL.md file
@@ -233,10 +219,9 @@ Individual skills may have additional licenses specified in their frontmatter.
 
 - **NCP Repository**: [github.com/portel-dev/ncp](https://github.com/portel-dev/ncp)
 - **npm Package**: [npmjs.com/package/ncp](https://www.npmjs.com/package/ncp)
-- **Skills Repository**: [github.com/portel-dev/skills](https://github.com/portel-dev/skills)
+- **Skillset Repository**: [github.com/portel-dev/skillset](https://github.com/portel-dev/skillset)
 - **Contact**: [arul@luracast.com](mailto:arul@luracast.com)
 
 ---
 
-**NCP Skills** - Teaching AI agents through executable patterns
-
+**NCP Skillset** - Teaching AI agents through executable patterns

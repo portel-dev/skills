@@ -1,12 +1,12 @@
 {
-  "name": "ncp-skills",
+  "name": "ncp-skillset",
   "owner": {
     "name": "NCP Team"
   },
   "metadata": {
     "version": "1.0.0",
     "description": "Official JavaScript/TypeScript skills for NCP and AI agents",
-    "repository": "https://github.com/portel-dev/skills",
+    "repository": "https://github.com/portel-dev/skillset",
     "license": "Apache-2.0"
   },
   "plugins": [
@@ -36,10 +36,12 @@
     },
     {
       "name": "media-skills",
-      "description": "Audio and media generation skills",
+      "description": "Audio, video, and media production skills",
       "source": "./skills",
       "strict": false,
       "skills": [
+        "./skills/video",
+        "./skills/audio",
         "./skills/qwen3-tts"
       ]
     }
