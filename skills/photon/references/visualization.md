@@ -1,8 +1,3 @@
----
-name: photon-visualizer
-description: Generate Mermaid diagrams for ANY Photon - workflows (flowcharts with ask/emit nodes) or tool collections (API surface diagrams). Use when visualizing Photon code, creating Photons from visual designs, or auto-generating documentation. Supports bidirectional Photon↔Mermaid conversion.
-license: MIT
----
 
 # Photon Visualizer
 

@@ -27,11 +27,11 @@ Skills are markdown-based instruction sets that contain:
 
 | Skill | Description | Lines |
 |-------|-------------|-------|
-| **[photon-builder](skills/photon-builder)** | Create lightweight Photon MCPs | 685 |
+| **[photon](skills/photon)** | Build Photon MCPs (tools, UIs, diagrams) | 1,850+ |
 | **[mcp-builder](skills/mcp-builder)** | Build full MCP servers | 236 |
 | **[skill-creator](skills/skill-creator)** | Meta-skill for creating skills | 434 |
 
-### Total: **4,068 lines** of production-ready skills
+### Total: **4,900+ lines** of production-ready skills
 
 ## 🚀 Quick Start
 

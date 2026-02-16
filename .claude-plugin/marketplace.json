@@ -28,8 +28,7 @@
       "source": "./skills",
       "strict": false,
       "skills": [
-        "./skills/photon-builder",
-        "./skills/photon-visualizer",
+        "./skills/photon",
         "./skills/mcp-builder",
         "./skills/skill-creator"
       ]

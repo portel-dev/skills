@@ -1,7 +1,3 @@
----
-name: photon-apps
-description: Build MCP Apps (interactive HTML UIs) using Photon. Use when users want to add a custom UI to a photon tool, create an interactive dashboard, build a game interface, or any visual MCP App. Covers @ui annotations, bridge APIs, tool calling from UI, theming, and the MCP Apps standard compatibility. Triggers on "add a UI to my photon", "create an MCP App", "build an interactive view for my tool", or "make a visual interface".
----
 
 # Photon Apps — Interactive UIs for MCP Tools
 
@@ -558,4 +554,4 @@ Photon's implementation is compatible with the [MCP Apps Extension (2026-01-26)]
 - [MCP Apps Extension Spec](https://modelcontextprotocol.io/docs/extensions/apps)
 - [MCP Apps API Reference](https://modelcontextprotocol.github.io/ext-apps/api/)
 - [ext-apps Repository](https://github.com/modelcontextprotocol/ext-apps)
-- [Photon Builder Skill](../photon-builder/SKILL.md) — for building the photon itself (tools, params, lifecycle)
+- [Photon Development Guide](../SKILL.md) — for building the photon itself (tools, params, lifecycle)
