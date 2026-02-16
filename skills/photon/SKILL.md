@@ -7,6 +7,52 @@ description: Complete guide for building Photon MCPs — single-file TypeScript 
 
 Photons are single-file TypeScript MCP servers. No compilation — runs directly with `tsx`.
 
+## Installation
+
+```bash
+# Install the Photon runtime globally
+npm install -g @portel/photon
+
+# Create a new photon
+photon maker new my-weather
+
+# Or create the file manually
+# Place .photon.ts files in ~/.photon/
+```
+
+This creates `~/.photon/my-weather.photon.ts` with a starter template.
+
+### Running Your Photon
+
+```bash
+# Launch Beam (interactive control panel — opens in browser)
+photon beam
+
+# Run as MCP server (for Claude Desktop, Cursor, etc.)
+photon mcp my-weather
+
+# Run from command line
+photon cli my-weather current --city London
+
+# Run as HTTP server with SSE transport
+photon sse my-weather
+```
+
+### Connecting to Claude Desktop
+
+Add to your Claude Desktop MCP config (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "my-weather": {
+      "command": "photon",
+      "args": ["mcp", "my-weather"]
+    }
+  }
+}
+```
+
 ## Quick Start
 
 ```typescript
