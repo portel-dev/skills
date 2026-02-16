@@ -1,45 +1,22 @@
 {
-  "name": "ncp-skills",
+  "name": "portel-skills",
   "owner": {
-    "name": "NCP Team"
+    "name": "Portel"
   },
   "metadata": {
     "version": "1.0.0",
-    "description": "Official JavaScript/TypeScript skills for NCP and AI agents",
+    "description": "Official skills for Photon and NCP",
     "repository": "https://github.com/portel-dev/skills",
     "license": "Apache-2.0"
   },
   "plugins": [
     {
-      "name": "document-skills",
-      "description": "Document creation and manipulation with JavaScript",
-      "source": "./skills",
-      "strict": false,
-      "skills": [
-        "./skills/pdf",
-        "./skills/docx",
-        "./skills/pptx",
-        "./skills/xlsx"
-      ]
-    },
-    {
       "name": "development-skills",
-      "description": "Skills for building MCPs, Photons, and Skills",
+      "description": "Skills for building Photons and MCPs",
       "source": "./skills",
       "strict": false,
       "skills": [
-        "./skills/photon",
-        "./skills/mcp-builder",
-        "./skills/skill-creator"
-      ]
-    },
-    {
-      "name": "media-skills",
-      "description": "Audio and media generation skills",
-      "source": "./skills",
-      "strict": false,
-      "skills": [
-        "./skills/qwen3-tts"
+        "./skills/photon"
       ]
     }
   ]
