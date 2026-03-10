@@ -1,6 +1,6 @@
 ---
 name: photon
-description: Build Photon MCPs — single-file TypeScript MCP servers with JSDoc metadata. Use when creating a new photon, adding tools/methods, configuring output formats, setting up MCP annotations, building custom UIs, generating diagrams, or working with daemon features (webhooks, cron, locks). Triggers on photon file creation, .photon.ts editing, Beam UI work, or MCP server development.
+description: "Build Photon MCPs — single-file TypeScript MCP servers with JSDoc metadata. Use when creating a new photon, adding tools/methods, configuring output formats, setting up MCP annotations, building custom UIs, generating diagrams, or working with daemon features (webhooks, cron, locks). Triggers on photon file creation, .photon.ts editing, Beam UI work, or MCP server development."
 ---
 
 # Photon Development Guide
