@@ -78,9 +78,11 @@ These tags add middleware behavior:
 | Tag | Description | Example |
 |-----|-------------|---------|
 | `@webhook` | Expose as HTTP webhook endpoint | `@webhook stripe` |
-| `@scheduled` | Cron schedule | `@scheduled 0 0 * * *` |
+| `@scheduled` | Static cron schedule (build-time) | `@scheduled 0 0 * * *` |
 | `@cron` | Alias for `@scheduled` | `@cron 30 2 * * 1-5` |
 | `@locked` | Distributed lock | `@locked` or `@locked board:write` |
+
+For runtime (dynamic) scheduling, use `this.schedule` API instead — see [Daemon Features](daemon-features.md).
 
 ## Inline Parameter Tags
 

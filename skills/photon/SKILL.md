@@ -166,6 +166,30 @@ await this.memory.set('shared', data, 'global');   // cross-photon
 
 Three scopes: `photon` (private), `session` (per-user), `global` (shared). Full API: `get`, `set`, `delete`, `has`, `keys`, `clear`, `getAll`, `update`.
 
+## Runtime Scheduling
+
+Dynamic task scheduling via `this.schedule` — complements static `@scheduled`/`@cron` tags:
+
+```typescript
+// Create a scheduled task at runtime
+await this.schedule.create({
+  name: 'nightly-cleanup',
+  schedule: '0 0 * * *',       // 5-field cron or @daily, @hourly, @weekly, @monthly
+  method: 'purge',
+  params: { olderThan: 30 },
+});
+
+// Manage tasks
+await this.schedule.pause(id);
+await this.schedule.resume(id);
+await this.schedule.cancel(id);
+const tasks = await this.schedule.list('active');
+```
+
+Full API: `create`, `get`, `getByName`, `list`, `update`, `pause`, `resume`, `cancel`, `cancelByName`, `cancelAll`, `has`. Tasks persist to disk; the daemon executes them.
+
+Use `@scheduled`/`@cron` for fixed schedules known at build time. Use `this.schedule` for dynamic schedules created at runtime (user-configured intervals, conditional jobs, etc.).
+
 ## Custom UIs
 
 Link HTML files as interactive result renderers:

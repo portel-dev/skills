@@ -37,6 +37,33 @@ Cron format: `minute hour day-of-month month day-of-week`
 
 Common patterns: `0 0 * * *` (daily), `0 * * * *` (hourly), `0 0 * * 0` (weekly Sunday)
 
+**Static vs Runtime:** `@scheduled`/`@cron` are for fixed schedules known at build time. For dynamic schedules created at runtime, use `this.schedule`:
+
+```typescript
+// Create a schedule programmatically
+await this.schedule.create({
+  name: 'user-backup',
+  schedule: '0 2 * * *',       // 5-field cron
+  method: 'backup',
+  params: { userId: 'abc' },
+});
+
+// Shorthands: @hourly, @daily, @weekly, @monthly, @yearly
+await this.schedule.create({ name: 'check', schedule: '@hourly', method: 'poll' });
+
+// Manage: pause, resume, cancel, list, update
+await this.schedule.pause(taskId);
+await this.schedule.resume(taskId);
+await this.schedule.cancel(taskId);
+const active = await this.schedule.list('active');
+await this.schedule.update(taskId, { schedule: '0 3 * * *' });
+
+// One-shot (runs once then auto-completes)
+await this.schedule.create({ name: 'reminder', schedule: '@daily', method: 'notify', fireOnce: true });
+```
+
+Full API: `create`, `get`, `getByName`, `list`, `update`, `pause`, `resume`, `cancel`, `cancelByName`, `cancelAll`, `has`.
+
 ## Distributed Locks (`@locked`)
 
 ```typescript
