@@ -595,6 +595,96 @@ async generate({ quarter }: { quarter: string }) {
 
 Client receives immediately: `{ executionId: "exec_...", status: "running" }`
 
+## MCP Standard Annotations
+
+Photon maps JSDoc tags to MCP protocol annotations (spec 2025-11-25). These help clients make UX decisions like auto-approval, confirmation gates, and retry behavior.
+
+### Tool Annotations
+
+```typescript
+/**
+ * List all tasks — safe, no side effects
+ * @readOnly
+ * @idempotent
+ * @closedWorld
+ * @title List All Tasks
+ */
+async list() { ... }
+
+/**
+ * Permanently delete a task — requires confirmation
+ * @destructive
+ * @openWorld
+ * @title Delete Task
+ */
+async remove({ id }: { id: string }) { ... }
+```
+
+| Tag | MCP Field | Effect |
+|-----|-----------|--------|
+| `@readOnly` | `annotations.readOnlyHint: true` | Client may auto-approve |
+| `@destructive` | `annotations.destructiveHint: true` | Client should require confirmation |
+| `@idempotent` | `annotations.idempotentHint: true` | Client may safely retry |
+| `@openWorld` | `annotations.openWorldHint: true` | Tool calls external systems |
+| `@closedWorld` | `annotations.openWorldHint: false` | Tool operates only on local data |
+| `@title` | `annotations.title` | Display name in tool selection UI |
+
+**Note:** Method-level `@readOnly` (no curly braces) is distinct from parameter-level `{@readOnly}` (inside `@param` tags). They serve different purposes.
+
+### Content Annotations
+
+Control who sees tool results and how important they are:
+
+```typescript
+/**
+ * Results shown only to the human user
+ * @audience user
+ * @priority 0.9
+ */
+async userReport() { ... }
+
+/**
+ * Internal context for the AI assistant only
+ * @audience assistant
+ * @priority 0.3
+ */
+async context() { ... }
+
+/**
+ * Results for both user and assistant (default)
+ * @audience user assistant
+ */
+async shared() { ... }
+```
+
+### Structured Output
+
+Photon auto-generates `Tool.outputSchema` from TypeScript return types — no tags needed:
+
+```typescript
+// Inline return type — schema auto-inferred
+async create(params: { title: string }): Promise<{ id: string; title: string; done: boolean }> {
+  return { id: 'task-001', title: params.title, done: false };
+}
+```
+
+For field descriptions, use an interface with JSDoc on properties:
+
+```typescript
+interface Task {
+  /** Unique task identifier */
+  id: string;
+  /** Task title */
+  title: string;
+  /** Whether the task is complete */
+  done: boolean;
+}
+
+async create(params: { title: string }): Promise<Task> { ... }
+```
+
+When `outputSchema` is present, MCP responses include `structuredContent` alongside text content, giving AI clients typed data.
+
 ## Custom UIs (MCP Apps)
 
 Photons can have interactive HTML UIs. Brief overview — see [references/mcp-apps.md](references/mcp-apps.md) for full details.
@@ -614,12 +704,12 @@ export default class MyApp extends PhotonMCP {
 }
 ```
 
-The UI HTML gets `window.photon` bridge auto-injected:
+The UI HTML gets a photon-named global proxy auto-injected (e.g., `window.myApp` for a photon named `my-app`):
 
 ```javascript
-const result = await window.photon.callTool('getData', { range: '7d' });
-window.photon.onResult((result) => { /* update UI */ });
-window.photon.onThemeChange((theme) => { /* light/dark */ });
+const result = await window.myApp.getData({ range: '7d' });
+window.myApp.onResult((result) => { /* update UI */ });
+window.myApp.onThemeChange((theme) => { /* light/dark */ });
 ```
 
 ## Visualization (Mermaid Diagrams)

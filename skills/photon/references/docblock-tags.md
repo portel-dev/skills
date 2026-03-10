@@ -25,7 +25,8 @@ These tags are placed in the JSDoc comment at the top of your `.photon.ts` file,
 | `@ui` | Defines a UI template asset for MCP Apps. | `@ui my-view ./ui/view.html` |
 | `@prompt` | Defines a static prompt asset. | `@prompt greet ./prompts/greet.txt` |
 | `@resource` | Defines a static resource asset. | `@resource data ./data.json` |
-| `@icon` | Sets the photon icon (emoji). | `@icon 🔧` |
+| `@icon` | Sets the photon icon (emoji or image path). | `@icon 🔧` or `@icon ./icons/tool.png` |
+| `@icons` | Declares icon image variants with size/theme. | `@icons ./icons/tool-48.png 48x48 dark` |
 | `@tags` | Comma-separated tags for categorization and search. | `@tags database, sql, postgresql` |
 | `@label` | Custom display name for the photon in BEAM sidebar. | `@label My Custom Tool` |
 | `@persist` | Enables settings UI persistence for the photon. | `@persist` |
@@ -52,10 +53,19 @@ These tags are placed in the JSDoc comment immediately before a tool method.
 | `@returns` | Describes the return value. Can include `{@label}`. | `@returns The greeting message {@label Say Hello}` |
 | `@example` | Provides a code example. | `@example await tool.greet({ name: 'World' })` |
 | `@format` | Hints the output format for CLI/Web interfaces. | `@format table` |
-| `@icon` | Sets the tool icon (emoji or icon name). | `@icon calculator` or `@icon 🧮` |
+| `@icon` | Sets the tool icon (emoji, icon name, or image path). | `@icon 🧮` or `@icon ./calc.png` |
+| `@icons` | Declares icon image variants with size/theme. | `@icons ./calc-48.png 48x48 dark` |
 | `@autorun` | Auto-execute when selected in Beam UI (for idempotent methods). | `@autorun` |
 | `@async` | Run in background, return execution ID immediately. | `@async` |
 | `@ui` | Links a tool to a UI template defined at class level. | `@ui my-view` |
+| `@title` | **MCP.** Human-readable display name for the tool. | `@title Create New Task` |
+| `@readOnly` | **MCP.** Tool has no side effects — safe for auto-approval. | `@readOnly` |
+| `@destructive` | **MCP.** Tool performs destructive operations — requires confirmation. | `@destructive` |
+| `@idempotent` | **MCP.** Tool is safe to retry — multiple calls produce same effect. | `@idempotent` |
+| `@openWorld` | **MCP.** Tool interacts with external systems beyond local data. | `@openWorld` |
+| `@closedWorld` | **MCP.** Tool operates only on local data (sets openWorldHint to false). | `@closedWorld` |
+| `@audience` | **MCP.** Who sees tool results: `user`, `assistant`, or both. | `@audience user` |
+| `@priority` | **MCP.** Content importance hint (0.0-1.0). | `@priority 0.8` |
 
 ### Async Execution
 
@@ -92,6 +102,87 @@ async generate({ quarter }: { quarter: string }) {
 - Any operation where the client shouldn't block waiting
 
 **How results are stored:** The execution audit trail (`~/.photon/logs/{photonId}/executions.jsonl`) records the full result, timing, and any errors once the background task completes.
+
+### MCP Tool Annotations
+
+Tags prefixed with **MCP.** map directly to MCP protocol `Tool.annotations` fields (spec 2025-11-25). These hints help clients make UX decisions:
+
+- **`@readOnly`** → `annotations.readOnlyHint: true` — Client may auto-approve without user confirmation
+- **`@destructive`** → `annotations.destructiveHint: true` — Client should require explicit confirmation
+- **`@idempotent`** → `annotations.idempotentHint: true` — Client may safely retry on failure
+- **`@openWorld`** / **`@closedWorld`** → `annotations.openWorldHint: true/false` — Informs client about external side effects
+- **`@title`** → `annotations.title` — Display name shown in tool selection UI
+- **`@audience`** → Content block `annotations.audience` — Controls who sees results
+- **`@priority`** → Content block `annotations.priority` — Importance weighting for result display
+
+**Note:** Method-level `@readOnly` (no curly braces) is distinct from parameter-level `{@readOnly}` (inside `@param` tags). They serve different purposes and do not conflict.
+
+```typescript
+/**
+ * List all tasks — no side effects, safe to auto-approve
+ * @readOnly
+ * @idempotent
+ * @title List All Tasks
+ * @audience user
+ * @priority 0.9
+ */
+list() { ... }
+
+/**
+ * Permanently delete a task — requires confirmation
+ * @destructive
+ * @openWorld
+ * @title Delete Task
+ */
+remove({ id }: { id: string }) { ... }
+```
+
+### Structured Output
+
+Photon automatically generates `Tool.outputSchema` from your TypeScript return type — no tags needed:
+
+```typescript
+// Just write TypeScript — schema is auto-inferred
+async create(params: { title: string }): Promise<{ id: string; title: string; done: boolean }> {
+  return { id: 'task-001', title: params.title, done: false };
+}
+```
+
+When you want field descriptions, use an interface or type with JSDoc on properties:
+
+```typescript
+interface Task {
+  /** Unique task identifier */
+  id: string;
+  /** Task title */
+  title: string;
+  /** Whether the task is complete */
+  done: boolean;
+}
+
+async create(params: { title: string }): Promise<Task> { ... }
+```
+
+When `outputSchema` is present, MCP responses include `structuredContent` alongside text content, giving AI clients typed data instead of stringified JSON.
+
+### Icon Images
+
+The `@icon` tag supports both emoji/icon names and image file paths. When a file path is detected (starts with `./` or `../`, or ends with an image extension), Photon reads the file at load time and converts it to a `data:` URI for the MCP `Tool.icons[]` field.
+
+Use `@icons` for explicit size/theme variants:
+
+```typescript
+/**
+ * @icon ./icons/calc.png                  // single image, auto-detected MIME
+ * @icons ./icons/calc-48.png 48x48        // explicit size
+ * @icons ./icons/calc-dark.svg dark        // theme variant
+ * @icons ./icons/calc-96.png 96x96 dark   // size + theme
+ */
+```
+
+Supported formats: PNG, JPEG, GIF, SVG, WebP, ICO. Paths are resolved relative to the photon file.
+
+Emoji icons (`@icon 🧮`) continue to work as before via `x-icon` for Beam UI backward compatibility.
 
 ## Daemon Feature Tags
 
@@ -540,7 +631,13 @@ The `{@field}` inline tag explicitly sets the HTML input type:
  */
 export default class UserManager {
   /**
-   * List all users
+   * List all users — read-only, safe to auto-approve
+   * @readOnly
+   * @idempotent
+   * @closedWorld
+   * @title List Users
+   * @audience user
+   * @priority 0.9
    * @format list {@title name, @subtitle email, @icon avatar, @badge role}
    * @returns List of users {@label Fetch Users}
    * @icon 👥
@@ -548,7 +645,8 @@ export default class UserManager {
   async listUsers(): Promise<User[]> { ... }
 
   /**
-   * Create a new user
+   * Create a new user — returns structured output
+   * @title Create User
    * @param name Full name {@label Your Name} {@min 2} {@max 100}
    * @param email Email address {@format email} {@example john@example.com}
    * @param role User role {@choice admin,user,guest}
@@ -562,8 +660,18 @@ export default class UserManager {
   }): Promise<User> { ... }
 
   /**
+   * Delete a user — destructive, requires confirmation
+   * @destructive
+   * @openWorld
+   * @title Delete User
+   * @param id User ID
+   */
+  async deleteUser(params: { id: string }): Promise<void> { ... }
+
+  /**
    * Get current status
    * @autorun
+   * @readOnly
    * @format json
    * @icon 📊
    */
