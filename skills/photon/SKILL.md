@@ -1,6 +1,6 @@
 ---
 name: photon
-description: "Build Photon MCPs — single-file TypeScript MCP servers with JSDoc metadata. Use when creating a new photon, adding tools/methods, configuring output formats, setting up MCP annotations, building custom UIs, generating diagrams, or working with daemon features (webhooks, cron, locks). Triggers on photon file creation, .photon.ts editing, Beam UI work, or MCP server development."
+description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, mermaid diagrams for photon architecture, editing .photon.ts files. DO NOT trigger for general TypeScript or non-photon MCP."
 ---
 
 # Photon Development Guide
@@ -151,6 +151,18 @@ async *deploy({ env }: { env: string }) {
   const ok = yield { ask: 'confirm', message: `Deploy to ${env}?` };
   if (!ok) return 'Cancelled';
   return 'Done';
+}
+
+// Waiting for external async events (WebSocket, library callbacks, etc.)
+async *connect() {
+  yield { emit: 'status', message: 'Connecting...' };
+  let resolve: (v: any) => void;
+  const promise = new Promise(r => { resolve = r; });
+  this.socket.on('ready', (data) => resolve(data));
+  await this.initSocket();
+  const event = await promise;  // blocks until external event fires
+  yield { emit: 'toast', message: 'Connected!', type: 'success' };
+  return event;
 }
 ```
 

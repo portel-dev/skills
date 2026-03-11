@@ -416,6 +416,62 @@ ERROR_TOAST --> FAILED([❌ Failed])
 
 ---
 
+## Async Event Waiting
+
+### Promise Resolver Pattern
+
+When a generator needs to pause until an external system (WebSocket, event emitter, callback-based library) fires an event, use a deferred Promise whose resolver is called from the event handler.
+
+**Photon:**
+```typescript
+async *connect() {
+  yield { emit: 'status', message: 'Connecting...' };
+
+  // Create a deferred promise
+  let resolveEvent: (value: any) => void;
+  const eventPromise = new Promise(resolve => { resolveEvent = resolve; });
+
+  // Wire external events to the resolver
+  this.socket.on('qr', (code) => resolveEvent({ type: 'qr', code }));
+  this.socket.on('connected', () => resolveEvent({ type: 'connected' }));
+
+  await this.initSocket();
+
+  // Generator suspends here until one of the events fires
+  const event = await eventPromise;
+
+  if (event.type === 'qr') {
+    yield { emit: 'qr', value: event.code, message: 'Scan to authenticate' };
+
+    // Chain another deferred promise for the next event
+    const connected = await new Promise(resolve => {
+      this.socket.on('connected', () => resolve(true));
+    });
+  }
+
+  yield { emit: 'toast', message: 'Connected!', type: 'success' };
+  return { status: 'connected' };
+}
+```
+
+**Mermaid:**
+```mermaid
+flowchart TD
+    START([▶ Start]) --> STATUS[📢 Connecting...]
+    STATUS --> SETUP[🔧 Wire event listeners]
+    SETUP --> INIT[🔄 initSocket]
+    INIT --> WAIT[⏳ Await external event]
+    WAIT -->|qr| QR[📢 Scan to authenticate]
+    QR --> WAIT2[⏳ Await connected]
+    WAIT2 --> TOAST[🎉 Connected!]
+    WAIT -->|connected| TOAST
+    TOAST --> DONE([✅ Connected])
+```
+
+The key insight: `await eventPromise` suspends the generator until the external callback calls `resolveEvent(...)`. This bridges callback-based APIs into the linear generator flow. Chain multiple deferred promises to wait for a sequence of events.
+
+---
+
 ## Dependency Declaration
 
 ### In Photon JSDoc
