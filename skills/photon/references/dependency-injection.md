@@ -21,7 +21,7 @@ Inject external MCP servers as constructor dependencies:
  * @mcp fs npm:@anthropic/mcp-filesystem
  * @mcp github anthropics/mcp-server-github
  */
-export default class FileProcessor extends PhotonMCP {
+export default class FileProcessor extends Photon {
   constructor(private fs: any, private github: any) { super(); }
 
   async process({ path }: { path: string }) {
@@ -31,46 +31,72 @@ export default class FileProcessor extends PhotonMCP {
 }
 ```
 
-## Photon Injection (`@photon`)
+## Photon Injection (`@photon`) — Preferred
 
-Declare photon dependencies for auto-install and auto-load.
-
-### Approach 1: Constructor Injection
+**Always prefer constructor injection over `this.call()`.** It makes dependencies explicit, typed, composable, and visible in the docblock.
 
 ```typescript
 /**
- * @photon billing billing-photon
- * @photon shipping shipping-photon
+ * Orchestrator — composes billing and shipping photons
+ *
+ * @photon billing ./billing.photon.ts
+ * @photon shipping ./shipping.photon.ts
  */
-export default class OrderProcessor extends PhotonMCP {
-  constructor(private billing: any, private shipping: any) { super(); }
+export default class OrderProcessor extends Photon {
+  constructor(
+    private billing: any,
+    private shipping: any,
+  ) { super(); }
 
   async process({ orderId }: { orderId: string }) {
     const invoice = await this.billing.generate({ orderId });
-    return { invoice };
+    const label = await this.shipping.createLabel({ orderId });
+    return { invoice, label };
   }
 }
 ```
 
-### Approach 2: Daemon-Routed (`this.call()`)
+### Event-Driven Composition
+
+Injected photons emit events on channels. Subscribe via the channel broker:
 
 ```typescript
+import { Photon, getBroker } from '@portel/photon-core';
+
 /**
- * @photon billing billing-photon
+ * @photon whatsapp ./whatsapp.photon.ts
+ * @photon router ./message-router.photon.ts
  */
-export default class OrderProcessor extends PhotonMCP {
-  async process({ orderId }: { orderId: string }) {
-    const invoice = await this.call('billing.generate', { orderId });
-    return { invoice };
+export default class Orchestrator extends Photon {
+  constructor(private whatsapp: any, private router: any) { super(); }
+
+  async start() {
+    // Subscribe to WhatsApp message events (auto-prefixed: 'whatsapp:messages')
+    const broker = getBroker();
+    await broker.subscribe('whatsapp:messages', (msg) => {
+      this._handleMessage(msg.data);
+    });
+    return { status: 'listening' };
   }
 }
+```
+
+### `this.call()` — Legacy/Escape Hatch
+
+Use `this.call()` only when you cannot use constructor injection (e.g., dynamic photon names, optional dependencies):
+
+```typescript
+// Only for dynamic/optional cross-photon calls
+const result = await this.call('billing.generate', { orderId });
 ```
 
 ### Comparison
 
-| | Constructor Injection | `this.call()` |
+| | Constructor Injection (preferred) | `this.call()` |
 |---|---|---|
-| **Setup** | `@photon` + constructor param | `@photon` only |
+| **Dependencies** | Explicit in docblock + constructor | Hidden in method bodies |
+| **Readability** | Clear dependency graph | Requires reading all methods |
 | **Execution** | In-process, direct | Via daemon, cross-process |
 | **Speed** | Faster (no IPC) | Slight overhead |
-| **Use case** | Tightly coupled helpers | Loosely coupled services |
+| **Events** | Can subscribe to injected photon's channels | No event access |
+| **Use case** | Default for all photon composition | Dynamic/optional deps only |

@@ -26,7 +26,7 @@ Files go in `~/.photon/`. Connect to Claude Desktop:
 ## Minimal Photon
 
 ```typescript
-import { PhotonMCP } from '@portel/photon-core';
+import { Photon } from '@portel/photon-core';
 
 /**
  * Weather API
@@ -34,7 +34,7 @@ import { PhotonMCP } from '@portel/photon-core';
  * @dependencies axios@^1.0.0
  * @icon 🌤️
  */
-export default class Weather extends PhotonMCP {
+export default class Weather extends Photon {
   constructor(private apiKey: string) { super(); }
 
   /**
@@ -72,7 +72,7 @@ export default class Weather extends PhotonMCP {
  * @icon 🔧
  * @tags api, utility
  */
-export default class MyTool extends PhotonMCP {
+export default class MyTool extends Photon {
   constructor(private apiKey: string) { super(); }
 
   /**
@@ -138,14 +138,60 @@ Use `@format` to control rendering. Common values:
 
 For complete format reference with layout hints, containers, and auto-detection rules, see [references/output-formats.md](references/output-formats.md).
 
-## Lifecycle & Workflows
+## Lifecycle & Hot-Reload
 
 ```typescript
-// Lifecycle hooks
-async onInitialize() { /* called once on load */ }
-async onShutdown() { /* called before unload */ }
+// Lifecycle hooks — receive optional context for hot-reload support
+async onInitialize(ctx?: { reason?: string; oldInstance?: any }) {
+  if (ctx?.reason === 'hot-reload' && ctx.oldInstance) {
+    // Transfer non-serializable resources (sockets, timers, connections)
+    this.socket = ctx.oldInstance.socket;
+    ctx.oldInstance.socket = null; // prevent old instance from using it
+    return;
+  }
+  // Normal first-time initialization
+  this.socket = await createConnection();
+}
 
-// Generator workflows (multi-step with user interaction)
+async onShutdown(ctx?: { reason?: string }) {
+  if (ctx?.reason === 'hot-reload') {
+    return; // DON'T close resources — new instance will take them
+  }
+  // Real shutdown: clean up everything
+  this.socket?.close();
+}
+```
+
+**Hot-reload rules:**
+- `onShutdown({ reason: 'hot-reload' })` → skip resource cleanup
+- `onInitialize({ reason: 'hot-reload', oldInstance })` → transfer resources from old instance
+- Normal shutdown/init (no context) → full cleanup/setup
+- Backward compatible — photons without context param still work
+
+## Events & Channels
+
+```typescript
+// Simple emit (local only — goes to current caller's UI)
+this.emit({ status: 'processing', progress: 50 });
+
+// Channel emit (cross-photon pub/sub via daemon broker)
+// Framework auto-prefixes with photon name: 'messages' → 'whatsapp:messages'
+this.emit({ channel: 'messages', type: 'message', data: msg });
+
+// Subscribe to another photon's events (use the full prefixed name)
+const broker = getBroker();
+const sub = await broker.subscribe('whatsapp:messages', (msg) => {
+  // handle message
+});
+sub.unsubscribe(); // when done
+```
+
+**Channel naming:** Emit with simple names (`channel: 'messages'`). The framework auto-prefixes with the photon name. Channels with a colon are left as-is.
+
+## Generator Workflows
+
+```typescript
+// Multi-step with user interaction
 async *deploy({ env }: { env: string }) {
   yield { emit: 'status', message: 'Deploying...' };
   const ok = yield { ask: 'confirm', message: `Deploy to ${env}?` };
@@ -208,7 +254,7 @@ Link HTML files as interactive result renderers:
 
 ```typescript
 /** @ui dashboard ./ui/dashboard.html */
-export default class MyApp extends PhotonMCP {
+export default class MyApp extends Photon {
   /** @ui dashboard */
   async getData({ range }: { range: string }) { return { metrics: 42 }; }
 }
