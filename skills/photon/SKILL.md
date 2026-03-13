@@ -17,7 +17,7 @@ photon mcp my-weather            # Run as MCP server
 photon cli my-weather current --city London  # CLI
 ```
 
-Files go in `~/.photon/`. Connect to Claude Desktop:
+Files go in `~/.photon/`. See [Directory Structure](references/directory-structure.md) for the full layout. Connect to Claude Desktop:
 
 ```json
 { "mcpServers": { "my-weather": { "command": "photon", "args": ["mcp", "my-weather"] } } }
@@ -264,10 +264,37 @@ The UI gets a photon-named global proxy: `window.myApp.getData(...)`, `window.my
 
 For full MCP Apps guide, see [references/mcp-apps.md](references/mcp-apps.md).
 
+## Directory Structure
+
+Photon separates **source/assets** from **runtime data** under `~/.photon/`:
+
+```
+~/.photon/
+├── <name>.photon.ts        # Source (or symlink)
+├── <name>/                 # Assets (@ui templates, images)
+├── state/<name>/           # Runtime: this.memory, settings (automatic)
+├── data/<name>/            # Runtime: photon-written files (manual)
+├── cache/                  # Runtime: compiled .mjs cache
+└── logs/<name>/            # Runtime: execution logs
+```
+
+**Key rule:** Photons that write runtime files (auth tokens, downloaded media, databases) MUST use `~/.photon/data/<name>/`, never `~/.photon/<name>/`. The asset folder is watched for hot-reload — writing there causes reload loops.
+
+```typescript
+// Correct: runtime data goes in data/<name>/
+const dataDir = path.join(os.homedir(), '.photon', 'data', 'my-app');
+
+// Wrong: asset folder triggers hot-reload!
+const dataDir = path.join(os.homedir(), '.photon', 'my-app', 'downloads');
+```
+
+For the full convention, see [Directory Structure](references/directory-structure.md).
+
 ## References
 
 | Topic | When to Read |
 |-------|-------------|
+| [Directory Structure](references/directory-structure.md) | Need the `~/.photon/` layout rules for assets vs runtime data |
 | [Docblock Tags](references/docblock-tags.md) | Need the complete tag reference (class, method, inline, daemon, MCP) |
 | [Output Formats](references/output-formats.md) | Need layout hints, chart mapping, containers, or auto-detection rules |
 | [Dependency Injection](references/dependency-injection.md) | Using `@mcp`, `@photon`, or `this.call()` for cross-photon communication |
