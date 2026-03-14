@@ -509,6 +509,79 @@ export default class TemplateEditor {
 }
 ```
 
+### Stateful Service Dashboard
+
+For long-running photons (messaging, orchestration, scheduling), the UI acts as a control panel that calls multiple tools and maintains local state:
+
+```typescript
+/**
+ * @ui dashboard ./ui/dashboard.html
+ * @stateful
+ */
+export default class MyService extends Photon {
+  /**
+   * Connection status — entry point that opens the dashboard
+   * @ui dashboard
+   * @readOnly
+   */
+  async status() {
+    return { status: this.connected ? 'connected' : 'disconnected', stats: { ... } };
+  }
+
+  /** Called from the dashboard UI via callTool */
+  async connect() { /* ... */ }
+  async disconnect() { /* ... */ }
+  async groups() { return [...]; }
+  async send(params: { chat: string; text: string }) { /* ... */ }
+}
+```
+
+HTML pattern for stateful dashboards:
+```html
+<script>
+  // Local UI state — NOT the photon state
+  let state = { status: 'disconnected', items: [], selected: null };
+
+  function parseMCP(raw) {
+    if (raw && raw.content && Array.isArray(raw.content)) {
+      const item = raw.content.find(c => c.type === 'text' && c.text);
+      if (item) { try { return JSON.parse(item.text); } catch(e) { return item.text; } }
+    }
+    return raw;
+  }
+
+  // Multiple tools compose the dashboard — status for header, list for sidebar, detail for content
+  async function refresh() {
+    const statusRaw = await window.photon.callTool('status', {});
+    state.status = parseMCP(statusRaw);
+    renderHeader();
+
+    if (state.status.connected) {
+      const itemsRaw = await window.photon.callTool('groups', {});
+      state.items = parseMCP(itemsRaw);
+      renderSidebar();
+    }
+  }
+
+  // onResult handles pushed results (when host triggers a tool)
+  window.photon.onResult((result) => {
+    const data = parseMCP(result);
+    // Detect result type by shape and update relevant UI section
+    if ('status' in data) { state.status = data; renderHeader(); }
+    else if (Array.isArray(data)) { state.items = data; renderSidebar(); }
+  });
+
+  // Initial load
+  refresh();
+</script>
+```
+
+Key principles for stateful dashboards:
+- **One @ui, many tools**: The dashboard calls multiple tools via `callTool` to compose its view
+- **Detect result type by shape**: `onResult` receives any tool result — inspect the data shape to route to the right renderer
+- **Poll sparingly**: Use `onResult` and events instead of timers where possible
+- **Keep local state minimal**: The photon is the source of truth; the UI just reflects it
+
 ## MCP Apps Standard Compatibility
 
 Photon's implementation is compatible with the [MCP Apps Extension (2026-01-26)](https://modelcontextprotocol.github.io/ext-apps/api/). Here's the mapping:
