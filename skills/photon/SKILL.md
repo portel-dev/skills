@@ -1,6 +1,6 @@
 ---
 name: photon
-description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, mermaid diagrams for photon architecture, editing .photon.ts files. DO NOT trigger for general TypeScript or non-photon MCP."
+description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, user-configurable settings (protected settings), this.render() for live output, photon build for standalone binaries, mermaid diagrams for photon architecture, editing .photon.ts files. DO NOT trigger for general TypeScript or non-photon MCP."
 ---
 
 # Photon Development Guide
@@ -248,6 +248,70 @@ Full API: `create`, `get`, `getByName`, `list`, `update`, `pause`, `resume`, `ca
 
 Use `@scheduled`/`@cron` for fixed schedules known at build time. Use `this.schedule` for dynamic schedules created at runtime (user-configured intervals, conditional jobs, etc.).
 
+## User Settings
+
+Expose configurable options via `protected settings`. Runtime auto-generates a settings tool and persists to disk:
+
+```typescript
+export default class MyAgent extends Photon {
+  protected settings = {
+    /** Polling interval in ms */
+    pollIntervalMs: 5000,
+    /** Max concurrent operations */
+    maxConcurrent: 3,
+    /** Auto-resume after restart */
+    autoResume: true,
+  };
+
+  async doWork() {
+    const interval = this.settings.pollIntervalMs; // read-only Proxy
+  }
+}
+```
+
+Users change settings via CLI (`photon cli my-agent settings`). Values persist to `~/.photon/state/<name>/<instance>-settings.json`.
+
+## Live Rendering *(v1.14+)*
+
+`this.render(format, value)` pushes formatted output that replaces the previous render zone (instead of appending):
+
+```typescript
+export default class Monitor {
+  async status() {
+    while (true) {
+      const metrics = await this.collectMetrics();
+      this.render('table', metrics);  // Replaces previous output
+      await new Promise(r => setTimeout(r, 5000));
+    }
+  }
+}
+```
+
+Accepts the same format values as `@format` tags. Call `this.render()` with no arguments to clear the render zone.
+
+## Compile to Binary *(v1.13+)*
+
+Build standalone executables from any photon — no Node.js required on the target machine:
+
+```bash
+photon build my-tool                         # Binary for current platform
+photon build my-tool -t bun-linux-x64        # Cross-compile for Linux
+photon build my-tool --with-app              # Embed Beam UI as a desktop app
+```
+
+Uses Bun's compiler. The binary bundles the photon, its `@dependencies`, and transitive `@photon` deps.
+
+## Install from GitHub *(v1.14+)*
+
+Use qualified refs to install and run photons directly from any GitHub repository:
+
+```bash
+photon beam Arul-/photons/claw        # Install from GitHub, open in Beam
+photon cli Arul-/photons/todo add     # Install from GitHub, run method
+```
+
+Format: `owner/repo/photon-name`. Transitive `@photon` dependencies from the same repo are resolved automatically.
+
 ## Custom UIs
 
 Link HTML files as interactive result renderers:
@@ -299,6 +363,7 @@ For the full convention, see [Directory Structure](references/directory-structur
 | [Output Formats](references/output-formats.md) | Need layout hints, chart mapping, containers, or auto-detection rules |
 | [Dependency Injection](references/dependency-injection.md) | Using `@mcp`, `@photon`, or `this.call()` for cross-photon communication |
 | [Daemon Features](references/daemon-features.md) | Setting up webhooks, cron jobs, or distributed locks |
+| [User Settings](references/user-settings.md) | `protected settings`, persistence, auto-resume patterns |
 | [MCP Apps](references/mcp-apps.md) | Building custom HTML UIs with the photon bridge |
 | [Visualization](references/visualization.md) | Generating Mermaid diagrams from photons |
 | [Mermaid Syntax](references/mermaid-syntax.md) | Flowchart shapes, arrows, subgraphs |

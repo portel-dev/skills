@@ -95,6 +95,7 @@ Placed within `@param` descriptions using `{@tag}` syntax:
 | `{@pattern regex}` | Regex validation | `@param zip Zip {@pattern ^[0-9]{5}$}` |
 | `{@example value}` | Example value | `@param city City {@example London}` |
 | `{@choice a,b,c}` | Allowed values (dropdown) | `@param role Role {@choice admin,user}` |
+| `{@choice-from method}` | Dynamic dropdown from another method's return value *(v1.14+)* | `@param group Group {@choice-from groups.name}` |
 | `{@field type}` | HTML input type | `@param bio Bio {@field textarea}` |
 | `{@label name}` | Custom display label | `@param name Name {@label Your Name}` |
 | `{@default value}` | Default value | `@param limit Max {@default 10}` |

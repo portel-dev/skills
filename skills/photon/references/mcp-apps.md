@@ -408,6 +408,28 @@ export default class ProjectManager {
 }
 ```
 
+## Sharing a UI Across Methods
+
+Multiple methods can share the same HTML template by referencing the same `@ui` asset ID. The first tagged method becomes the primary (used for app detection); all tagged methods render their results in the same UI.
+
+```typescript
+/**
+ * @ui dashboard ./ui/dashboard.html
+ */
+export default class Analytics {
+  /** @ui dashboard */
+  async overview() { return { visits: 1000, bounceRate: 0.3 }; }
+
+  /** @ui dashboard */
+  async realtime() { return { activeUsers: 42 }; }
+
+  /** @ui dashboard */
+  async funnel({ step }: { step: string }) { return { conversion: 0.12 }; }
+}
+```
+
+All three methods render inside `dashboard.html`. The UI receives whichever method's result via `onResult` and can distinguish them by data shape.
+
 ## Iframe Sandbox
 
 UIs run in a sandboxed iframe with these permissions:

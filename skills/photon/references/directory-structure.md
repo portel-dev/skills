@@ -7,9 +7,12 @@ The `~/.photon/` directory has a strict separation between **source/assets** (wh
 ```
 ~/.photon/
 ├── <name>.photon.ts          # Source file (or symlink to dev repo)
-├── <name>/                   # Asset folder (UI templates, images, CSS)
+├── <name>/                   # Assets (@ui templates, images, CSS)
 │   └── ui/
 │       └── dashboard.html
+│
+├── <owner>/                  # Namespace directory (v1.14+, GitHub-installed photons)
+│   └── <name>.photon.ts      # e.g., ~/.photon/Arul-/claw.photon.ts
 │
 ├── state/<name>/             # Runtime: persisted state (this.memory, settings)
 │   ├── default.json          # Default instance state
@@ -28,6 +31,23 @@ The `~/.photon/` directory has a strict separation between **source/assets** (wh
 │
 └── config.json               # Global daemon config
 ```
+
+### Namespace Directories *(v1.14+)*
+
+Photons installed from GitHub or marketplaces are stored under an owner namespace directory. User-created (local) photons stay at the root:
+
+```
+~/.photon/
+├── my-tool.photon.ts         # Local photon (user-created, stays at root)
+├── p2p-transfer.photon.ts    # Local photon (photon maker new)
+├── Arul-/                    # Owner namespace (GitHub-installed)
+│   ├── claw.photon.ts        # From Arul-/photons/claw
+│   └── todo.photon.ts        # From Arul-/photons/todo
+└── portel-dev/               # Another owner namespace
+    └── kanban.photon.ts
+```
+
+This prevents name collisions between photons from different authors. The runtime discovers photons in both root and namespace directories. Local photons get priority during resolution.
 
 ## The Two Zones
 
