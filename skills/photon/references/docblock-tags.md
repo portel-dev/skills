@@ -29,6 +29,8 @@ All supported JSDoc tags organized by scope. For usage examples, see the relevan
 | `@label` | Custom display name in Beam sidebar | `@label My Custom Tool` |
 | `@persist` | Enable settings UI persistence | `@persist` |
 | `@internal` | Hide photon from sidebar | `@internal` |
+| `@worker` | Force worker thread isolation (crash-safe) | `@worker` |
+| `@noworker` | Force in-process even with lifecycle hooks | `@noworker` |
 | `@forkedFrom` | Origin for forked photons (auto-injected) | `@forkedFrom portel-dev/photons#kanban` |
 
 ## Method-Level Tags

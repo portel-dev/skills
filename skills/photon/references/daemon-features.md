@@ -1,6 +1,35 @@
 # Daemon Features
 
-Tags for webhooks, scheduled jobs, and distributed locks. Extracted at build time and used by the Photon daemon.
+Tags for webhooks, scheduled jobs, distributed locks, and worker isolation. Extracted at build time and used by the Photon daemon.
+
+## Worker Thread Isolation (`@worker` / `@noworker`)
+
+Photons that manage long-running resources (WebSocket connections, polling loops, auth sessions) run in isolated worker threads. If another photon crashes or a hot-reload fails, isolated photons are unaffected.
+
+**Auto-detection:** Photons with both `onShutdown()` and `onInitialize()` lifecycle methods are automatically placed in workers — no tag needed.
+
+**Explicit control:**
+
+```typescript
+/**
+ * @worker          ← force isolation (even without lifecycle hooks)
+ */
+export default class MyConnector extends Photon { ... }
+
+/**
+ * @noworker        ← force in-process (even with lifecycle hooks)
+ */
+export default class FastDev extends Photon { ... }
+```
+
+**Priority:** `@noworker` > `@worker` > auto-detect (lifecycle hooks) > default (in-process)
+
+**What changes in a worker:**
+- Tool calls routed via IPC (~1-2ms overhead)
+- `@photon` cross-deps resolved via RPC through main thread
+- Pub/sub events bridged automatically between workers
+- Crash only affects that worker — other photons keep running
+- Hot-reload within the worker; failure preserves old instance
 
 ## Webhooks (`@webhook`)
 
