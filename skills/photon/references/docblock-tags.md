@@ -118,10 +118,34 @@ Tags marked **MCP.** map to MCP protocol `Tool.annotations` (spec 2025-11-25):
 - `@idempotent` → `annotations.idempotentHint: true`
 - `@openWorld` / `@closedWorld` → `annotations.openWorldHint: true/false`
 - `@title` → `annotations.title`
-- `@audience` → content block `annotations.audience`
+- `@audience` → content block `annotations.audience`:
+  - `@audience user` — results for the human (dashboard data, admin views)
+  - `@audience assistant` — results for the LLM only (internal context)
+  - Both/default — results for both audiences
 - `@priority` → content block `annotations.priority`
 
 **Disambiguation:** Method-level `@readOnly` (tool hint) vs param-level `{@readOnly}` (JSON Schema) — no conflict.
+
+### UI-Only Methods Pattern
+
+Combine `@internal` + `@audience user` for methods callable by UI templates (`window.photon.callTool()`) but hidden from the LLM:
+
+```typescript
+/**
+ * Dashboard-only method — not visible to AI.
+ * @internal
+ * @audience user
+ * @readOnly
+ */
+async journal(params: { agent: string }): Promise<Entry[]> { ... }
+```
+
+| Combination | LLM sees tool? | UI can call? | Use case |
+|-------------|---------------|-------------|----------|
+| *(no tags)* | Yes | Yes | Standard tools |
+| `@internal` | No | Yes | Scheduled jobs, system callbacks |
+| `@internal` + `@audience user` | No | Yes | Dashboard-only methods |
+| `@audience assistant` | Yes | Yes | LLM-facing data human doesn't need |
 
 ## Structured Output
 

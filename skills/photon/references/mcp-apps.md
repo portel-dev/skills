@@ -604,6 +604,38 @@ Key principles for stateful dashboards:
 - **Poll sparingly**: Use `onResult` and events instead of timers where possible
 - **Keep local state minimal**: The photon is the source of truth; the UI just reflects it
 
+### UI-Only Methods
+
+Use `@internal` + `@audience user` to create methods the dashboard can call but the LLM never sees:
+
+```typescript
+/**
+ * @ui dashboard ./ui/dashboard.html
+ * @stateful
+ */
+export default class MyService extends Photon {
+  /** Both LLM and UI can call this */
+  async status() { return { connected: true }; }
+
+  /**
+   * Dashboard-only — hidden from LLM tools/list.
+   * @internal
+   * @audience user
+   * @readOnly
+   */
+  async metrics() { return { cpu: 42, memory: 128 }; }
+
+  /**
+   * Dashboard-only — admin action, not for AI.
+   * @internal
+   * @audience user
+   */
+  async restart() { /* ... */ }
+}
+```
+
+The UI calls these like any other tool (`window.photon.callTool('metrics', {})`). The `@internal` tag hides them from `tools/list` so the LLM can't invoke them. The `@audience user` adds MCP content annotations marking results as human-only. See [Docblock Tags](docblock-tags.md) for the full audience matrix.
+
 ## MCP Apps Standard Compatibility
 
 Photon's implementation is compatible with the [MCP Apps Extension (2026-01-26)](https://modelcontextprotocol.github.io/ext-apps/api/). Here's the mapping:
