@@ -103,6 +103,20 @@ JSDoc tags map to MCP protocol annotations (spec 2025-11-25):
  */
 ```
 
+**UI-only methods:** Combine `@internal` + `@audience user` for methods the dashboard can call but the LLM never sees:
+
+```typescript
+/**
+ * Dashboard-only admin panel data.
+ * @internal
+ * @audience user
+ * @readOnly
+ */
+async metrics() { return { cpu: 42 }; }
+```
+
+`@internal` hides from `tools/list`. `@audience user` marks results as human-only. The UI still calls via `window.photon.callTool('metrics', {})`.
+
 ## Structured Output
 
 Auto-generated from TypeScript return types — no tags needed:
