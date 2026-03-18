@@ -20,7 +20,7 @@ All supported JSDoc tags organized by scope. For usage examples, see the relevan
 | `@photons` | Photon dependencies list (for diagrams) | `@photons calculator` |
 | `@stateful` | Photon maintains state between calls | `@stateful true` |
 | `@idleTimeout` | Idle timeout before process termination (ms) | `@idleTimeout 300000` |
-| `@ui` | UI template asset | `@ui my-view ./ui/view.html` |
+| `@ui` | UI template asset. `.photon.html` = declarative (data-attribute binding, no JS). `.html` = full control. | `@ui my-view ./ui/view.html` or `@ui my-view ./ui/view.photon.html` |
 | `@prompt` | Static prompt asset | `@prompt greet ./prompts/greet.txt` |
 | `@resource` | Static resource asset | `@resource data ./data.json` |
 | `@icon` | Photon icon (emoji or image path) | `@icon 🔧` or `@icon ./icons/tool.png` |

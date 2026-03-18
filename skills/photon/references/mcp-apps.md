@@ -328,13 +328,43 @@ For a photon at `~/.photon/my-app.photon.ts`:
 ├── my-app.photon.ts          # Photon source
 └── my-app/                   # Asset folder (auto-discovered)
     └── ui/
-        ├── dashboard.html    # @ui dashboard ./ui/dashboard.html
-        ├── settings.html     # @ui settings ./ui/settings.html
-        └── assets/           # Images, CSS, etc. (bundled inline)
+        ├── dashboard.photon.html  # Declarative mode (zero JS)
+        ├── settings.html          # Full-control mode (custom JS)
+        └── assets/                # Images, CSS, etc. (bundled inline)
             └── logo.svg
 ```
 
 Paths in `@ui` are relative to the asset folder (`~/.photon/my-app/`), not to the photon file itself.
+
+### Two UI Modes
+
+| Extension | Mode | Behavior |
+|-----------|------|----------|
+| `.photon.html` | **Declarative** | Fragment auto-wrapped with base CSS, data attributes bind to methods |
+| `.html` | **Full control** | Bridge injected, you write all JavaScript |
+
+When both exist for the same name, `.photon.html` takes priority.
+
+### Declarative Templates (.photon.html)
+
+For simple UIs, skip JavaScript entirely:
+
+```html
+<!-- dashboard.photon.html -->
+<h1>Dashboard</h1>
+<div data-method="cpu" data-format="gauge"></div>
+<div data-method="status" data-format="metric" data-live></div>
+```
+
+**Data attributes:**
+
+| Attribute | Description | Example |
+|-----------|-------------|---------|
+| `data-method` | Call this photon method on load | `data-method="cpu"` |
+| `data-format` | Render result using a format renderer | `data-format="gauge"` |
+| `data-field` | Extract a nested field from the result | `data-field="status.count"` |
+| `data-live` | Re-render when the method emits new results | `data-live` |
+| `data-refresh` | Poll the method on an interval (min 1s) | `data-refresh="5s"` |
 
 ## Generator Methods + UI
 
