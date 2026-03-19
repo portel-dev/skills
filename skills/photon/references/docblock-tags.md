@@ -31,6 +31,7 @@ All supported JSDoc tags organized by scope. For usage examples, see the relevan
 | `@internal` | Hide photon from sidebar | `@internal` |
 | `@worker` | Force worker thread isolation (crash-safe) | `@worker` |
 | `@noworker` | Force in-process even with lifecycle hooks | `@noworker` |
+| `@auth` | MCP OAuth auth requirement. Enables `this.caller`. | `@auth required` or `@auth optional` |
 | `@forkedFrom` | Origin for forked photons (auto-injected) | `@forkedFrom portel-dev/photons#kanban` |
 
 ## Method-Level Tags

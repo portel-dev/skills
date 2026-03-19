@@ -1,6 +1,6 @@
 ---
 name: photon
-description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, user-configurable settings (protected settings), this.render() for live output, photon build for standalone binaries, mermaid diagrams for photon architecture, editing .photon.ts files. DO NOT trigger for general TypeScript or non-photon MCP."
+description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar, slides), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, user-configurable settings (protected settings), this.render() for live output, photon build for standalone binaries, mermaid diagrams for photon architecture, editing .photon.ts files, @auth for MCP OAuth identity (this.caller), identity-aware locks for multiplayer/turn-based photons, @format slides for Marp-style presentations. DO NOT trigger for general TypeScript or non-photon MCP."
 ---
 
 # Photon Development Guide
@@ -146,11 +146,53 @@ Use `@format` to control rendering. Common values:
 | `table` | Array of objects |
 | `list` | Styled list with `{@title name, @subtitle email}` |
 | `markdown` | Rich text, diagrams |
+| `slides` | Marp-style presentation deck |
 | `chart:bar` / `chart:line` / `chart:pie` | Data visualization |
 | `json` | Raw JSON |
 | `dashboard` | Composite panels (auto-detected) |
 
 For complete format reference with layout hints, containers, and auto-detection rules, see [references/output-formats.md](references/output-formats.md).
+
+## MCP OAuth & Caller Identity
+
+Use `@auth` for authenticated photons. Enables `this.caller` in every method.
+
+```typescript
+/**
+ * Multiplayer chess
+ * @stateful
+ * @auth required
+ */
+export default class Chess extends Photon {
+  players: Record<string, string> = {};
+
+  async join() {
+    const slot = !this.players.white ? 'white' : 'black';
+    this.players[slot] = this.caller.id;
+    if (slot === 'black') {
+      await this.acquireLock('turn', this.players.white);
+    }
+    return { color: slot, name: this.caller.name };
+  }
+
+  /** @locked turn */
+  async move({ from, to }: { from: string; to: string }) {
+    // Only reaches here if this.caller.id holds the 'turn' lock
+    const next = this.turn === 'white' ? this.players.black : this.players.white;
+    await this.transferLock('turn', next);
+    return this.board;
+  }
+}
+```
+
+**`this.caller`:** `{ id, name, anonymous, scope, claims }` — populated from MCP OAuth JWT.
+
+**Identity-aware locks:**
+- `this.acquireLock(name, callerId)` — assign lock to a caller
+- `this.transferLock(name, toCallerId)` — move lock to another caller
+- `this.releaseLock(name)` — release, open to anyone
+- `this.getLock(name)` — query who holds the lock
+- `@locked` methods auto-check `this.caller.id` against lock holder
 
 ## Lifecycle & Hot-Reload
 

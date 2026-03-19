@@ -36,6 +36,60 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `dashboard` | Composite grid of auto-detected panels |
 | `cart` | Shopping cart with item rows + totals |
 
+## Presentation Format
+
+| Value | Description |
+|-------|-------------|
+| `slides` | Marp-style markdown slide deck with keyboard navigation and fullscreen |
+
+```typescript
+/**
+ * @format slides
+ */
+async present() {
+  return `---
+marp: true
+theme: gaia
+paginate: true
+footer: Acme Corp © 2026
+---
+
+# Welcome to Acme
+
+![Logo](images/logo.png)
+
+---
+
+## Revenue
+
+- Q1: $12M (+15%)
+- Q2: $14M (+22%)
+
+---
+
+# Thank You
+`;
+}
+```
+
+**Frontmatter options:**
+
+| Key | Description |
+|-----|-------------|
+| `theme` | `default`, `gaia`, `uncover`, `rose`, `dracula`. Auto-detects from Beam theme if omitted. |
+| `paginate` | `true` to show slide numbers |
+| `header` | Text shown at top of every slide |
+| `footer` | Text shown at bottom of every slide |
+| `backgroundColor` | Override slide background color |
+| `color` | Override text color |
+| `baseUrl` | Base URL for relative image/link paths. Defaults to `/api/assets/{photonName}/`. |
+
+**Images:** Use relative paths — they resolve against the photon's `assets/` folder automatically. Place images at `my-photon/assets/images/logo.png`, reference as `![Logo](images/logo.png)`.
+
+**Keyboard:** ← → Space PgUp PgDn Home End for navigation, F for fullscreen.
+
+**Auto-detection:** Returns a string with `marp: true` frontmatter or 3+ `---` separators → auto-detected as slides.
+
 ## Container Formats
 
 Containers wrap inner content. Data must be an object — keys become section titles.
