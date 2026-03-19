@@ -21,7 +21,7 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `markdown` | Markdown rendering (supports mermaid code blocks) |
 | `yaml` / `xml` / `html` | Syntax highlighting |
 | `mermaid` | Mermaid diagram rendering |
-| `code` / `code:typescript` / `code:python` | Language-specific syntax highlighting |
+| `code` / `code:typescript` / `code:python` | Syntax-highlighted code (keywords, strings, numbers, comments). Colors use `--syntax-*` CSS variables. |
 
 ## Visualization Formats
 
@@ -32,7 +32,10 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `chart:area` / `chart:scatter` / `chart:donut` / `chart:radar` | More chart types |
 | `metric` | KPI display (big number + label + delta) |
 | `gauge` | Circular gauge/progress indicator |
+| `progress` | Animated progress bar with percentage |
+| `badge` | Colored status badge (auto-detects variant from text) |
 | `timeline` | Vertical timeline of events |
+| `qr` | QR code from URL/text |
 | `dashboard` | Composite grid of auto-detected panels |
 | `cart` | Shopping cart with item rows + totals |
 
