@@ -94,7 +94,7 @@ Placed within `@param` descriptions using `{@tag}` syntax:
 | Tag | Description | Example |
 |-----|-------------|---------|
 | `{@min N}` / `{@max N}` | Numeric range | `@param age Age {@min 0} {@max 120}` |
-| `{@format type}` | Input format | `@param email Email {@format email}` |
+| `{@format type}` | Input format / widget | `@param email Email {@format email}` |
 | `{@pattern regex}` | Regex validation | `@param zip Zip {@pattern ^[0-9]{5}$}` |
 | `{@example value}` | Example value | `@param city City {@example London}` |
 | `{@choice a,b,c}` | Allowed values (dropdown) | `@param role Role {@choice admin,user}` |
@@ -109,6 +109,44 @@ Placed within `@param` descriptions using `{@tag}` syntax:
 | `{@multipleOf N}` | Number multiple | `@param qty Qty {@multipleOf 5}` |
 | `{@deprecated msg}` | Deprecated parameter | `@param old Old {@deprecated Use new}` |
 | `{@accept pattern}` | File type filter | `@param file File {@accept .ts,.js}` |
+
+### `{@format}` Input Widget Values
+
+Many input widgets are **auto-detected** from the param name; use `{@format}` to override or force a specific widget.
+
+#### Enhanced Basic Inputs (auto-detected OR explicit)
+
+| Value | Widget | Auto-detected from param name |
+|-------|--------|-------------------------------|
+| `password` / `secret` | Masked input with show/hide toggle | `password`, `secret`, `token`, `apikey` |
+| `email` | Email field with placeholder | `email` |
+| `url` | URL field with live "open link" button | `url`, `website`, `homepage` |
+| `phone` / `tel` | Tel field with phone placeholder | `phone`, `tel`, `mobile` |
+| `color` | Color swatch + hex input | `color`, `colour` |
+| `search` | Search field | `search`, `query`, `q` |
+
+#### Rich Input Components (require explicit `{@format}`)
+
+| Value | Widget |
+|-------|--------|
+| `tags` | Chip/pill input (Enter or comma adds, Backspace removes, deduplicates). Also auto-detected for `string[]` params. |
+| `rating` | 1–5 star picker with hover preview. Use `{@multipleOf 0.5}` for half-stars. Auto-detected: `rating`, `stars`. |
+| `segmented` | Horizontal pill bar for enum params (2–4 values). Use with `{@choice}`. |
+| `radio` | Vertical radio buttons for enum params. Use with `{@choice}`. |
+| `code` / `code:lang` | Code editor with line numbers, tab-indent. Append language: `code:typescript`, `code:python`, `code:css`. |
+| `markdown` | Split-pane editor with toolbar (Bold, Italic, Code, Link, Heading, List, Quote), Write/Split/Preview modes, word count. |
+
+#### Date & Time Pickers
+
+Custom calendar with 3-layer drill-down, typed input, Today/Clear buttons. Smart positioning: `birthday`/`dob` open ~25 years back; `expiry` opens 2 years forward.
+
+| Value | Widget |
+|-------|--------|
+| `date` | Calendar date picker |
+| `date-time` | Calendar + hour:minute |
+| `time` | Time text input |
+| `date-range` | Two date pickers side by side |
+| `datetime-range` | Two date-time pickers side by side |
 
 ## MCP Annotations
 
