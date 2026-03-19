@@ -12,6 +12,9 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `grid` | Visual grid | `[{ title: "...", image: "..." }]` |
 | `tree` | Hierarchical data | `{ children: [...] }` |
 | `card` | Single object as card | `{ title: "...", body: "..." }` |
+| `steps` / `stepper` | Step-by-step progress indicator | `[{ label: "Install", status: "complete" }]` |
+| `kanban` | Kanban board with columns and cards | `{ columns: [{ title: "Todo", items: [...] }] }` |
+| `comparison` | Side-by-side property comparison | `{ items: [{ name: "A", price: "$9" }], highlight: "A" }` |
 
 ## Content Formats
 
@@ -22,6 +25,9 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `yaml` / `xml` / `html` | Syntax highlighting |
 | `mermaid` | Mermaid diagram rendering |
 | `code` / `code:typescript` / `code:python` | Syntax-highlighted code (keywords, strings, numbers, comments). Colors use `--syntax-*` CSS variables. |
+| `diff` | Unified diff string or `{ before, after, filename? }` — added/removed line highlighting |
+| `log` | `[{ level, message, timestamp?, source? }]` — structured log viewer with level coloring |
+| `embed` | URL string or `{ url, title? }` — embed external content in an iframe |
 
 ## Visualization Formats
 
@@ -29,15 +35,37 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 |-------|-------------|
 | `chart` | Auto-detect chart type from data shape |
 | `chart:bar` / `chart:line` / `chart:pie` | Specific chart types |
+| `chart:hbar` | Horizontal bar chart (same data shape as `chart:bar`) |
 | `chart:area` / `chart:scatter` / `chart:donut` / `chart:radar` | More chart types |
 | `metric` | KPI display (big number + label + delta) |
+| `stat-group` | Row of KPI stat cards — `[{ label, value, delta?, trend?, prefix?, suffix? }]` |
 | `gauge` | Circular gauge/progress indicator |
 | `progress` | Animated progress bar with percentage |
 | `badge` | Colored status badge (auto-detects variant from text) |
 | `timeline` | Vertical timeline of events |
+| `heatmap` | Color-intensity grid — `{ rows, cols, values }` or `[{ rowKey, colKey, value }]` |
+| `calendar` | Monthly/weekly calendar — `[{ title, start, end?, allDay?, color? }]` |
+| `map` | Interactive map with markers — `[{ lat, lng, label?, popup? }]` |
+| `network` / `graph` | Node-edge graph — `{ nodes: [{ id, label, group? }], edges: [{ from, to, label? }] }` |
+| `cron` | Human-readable cron display — expression string or `{ expression, description? }` |
 | `qr` | QR code from URL/text |
 | `dashboard` | Composite grid of auto-detected panels |
 | `cart` | Shopping cart with item rows + totals |
+
+## Design / Layout Formats
+
+| Value | Description |
+|-------|-------------|
+| `image` | URL string, `{ src, caption? }`, or array — single image or image list |
+| `carousel` | `[{ src, caption? }]` — horizontally scrolling image carousel |
+| `gallery` | `[{ src, caption?, full? }]` — thumbnail grid with lightbox expand |
+| `masonry` | `[{ src, caption? }]` — Pinterest-style masonry image grid |
+| `hero` | `{ title, subtitle?, image?, cta?, url? }` — full-width hero section |
+| `banner` | `{ message, type?, icon? }` — dismissable notification banner (`type`: `info`/`success`/`error`/`warning`) |
+| `quote` | `{ text, author?, source?, avatar? }` — styled pull-quote with attribution |
+| `profile` | `{ name, avatar?, role?, bio?, stats?: { key: value } }` — user/entity profile card |
+| `feature-grid` | `[{ icon, title, description }]` — marketing feature grid |
+| `invoice` / `receipt` | `{ number?, date?, from?, to?, items: [{ description, quantity, rate, amount }], subtotal?, tax?, total?, notes? }` — itemized invoice with totals |
 
 ## Presentation Format
 
