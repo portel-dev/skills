@@ -347,24 +347,34 @@ When both exist for the same name, `.photon.html` takes priority.
 
 ### Declarative Templates (.photon.html)
 
-For simple UIs, skip JavaScript entirely:
+Inspired by [Datastar](https://data-star.dev/)'s SSE-first hypermedia approach. Only `data-method` is required — format, live updates, refresh, and trigger are auto-inferred from your docblock metadata (`@format`, `@stateful`, `@scheduled`).
 
 ```html
 <!-- dashboard.photon.html -->
 <h1>Dashboard</h1>
-<div data-method="cpu" data-format="gauge"></div>
-<div data-method="status" data-format="metric" data-live></div>
+<div data-method="cpu"></div>           <!-- format from @format, live from @stateful -->
+<div data-method="requests"></div>      <!-- auto-inferred table, auto live updates -->
+<button data-method="restart" data-target="#status">Restart</button>
+<span id="status"></span>
 ```
 
-**Data attributes:**
+**Auto-inference from metadata:**
 
-| Attribute | Description | Example |
-|-----------|-------------|---------|
-| `data-method` | Call this photon method on load | `data-method="cpu"` |
-| `data-format` | Render result using a format renderer | `data-format="gauge"` |
-| `data-field` | Extract a nested field from the result | `data-field="status.count"` |
-| `data-live` | Re-render when the method emits new results | `data-live` |
-| `data-refresh` | Poll the method on an interval (min 1s) | `data-refresh="5s"` |
+| What | Auto-inferred from | Manual override |
+|------|-------------------|-----------------|
+| Format | `@format` tag on method | `data-format="gauge"` |
+| Live updates | `@stateful` tag on class | `data-live` |
+| Refresh | `@scheduled`/`@cron` tag | `data-refresh="5s"` |
+| Trigger | Element type: button→click, div→load | `data-trigger="click"` |
+
+**Additional attributes (optional):**
+
+| Attribute | Purpose | Default |
+|-----------|---------|---------|
+| `data-target` | CSS selector — where to render | Self |
+| `data-swap` | How to replace: `innerHTML`, `outerHTML`, `beforeend`, `afterend` | `innerHTML` |
+| `data-args` | JSON parameters | `{}` |
+| `data-field` | Extract nested field | — |
 
 ## Generator Methods + UI
 
