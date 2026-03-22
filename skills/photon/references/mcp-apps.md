@@ -76,7 +76,7 @@ Place your UI file in the photon's asset folder (`~/.photon/<photon-name>/ui/`):
  * My Dashboard App
  *
  * @name my-app
- * @ui dashboard ./ui/dashboard.html
+ * @ui dashboard
  */
 export default class MyApp {
   /**
@@ -111,18 +111,21 @@ That's it. When `getData` is called in Beam, the HTML UI renders in an iframe in
 
 ```typescript
 /**
- * @ui <id> <path>
+ * @ui <id> [description]
  */
 ```
 
-- `<id>` — Unique identifier for the UI asset (e.g., `dashboard`, `board`, `editor`)
-- `<path>` — Path relative to the photon's asset folder (`~/.photon/<name>/`)
+- `<id>` — Unique identifier that MUST match the HTML filename at `<photon>/ui/<id>.html`
+- `[description]` — Optional description text (NOT a file path)
+
+**Convention:** `@ui <id>` resolves to `<photon-name>/ui/<id>.html` automatically.
 
 Examples:
 ```typescript
-/** @ui main ./ui/index.html */
-/** @ui board ./ui/board.html */
-/** @ui settings ./ui/settings.html */
+/** @ui dashboard */           // → my-app/ui/dashboard.html
+/** @ui board */               // → chess/ui/board.html
+/** @ui settings */            // → my-app/ui/settings.html
+/** @ui slides Presentation viewer */  // description, not a path
 ```
 
 A photon can declare multiple UI assets.
@@ -160,7 +163,7 @@ async getData() { }
 
 ### What Photon Generates Under the Hood
 
-From `@ui dashboard ./ui/dashboard.html` + `@ui dashboard` on `getData`:
+From `@ui dashboard` on the class + `@ui dashboard` on `getData`:
 
 1. **`tools/list`** includes metadata:
    ```json
@@ -334,7 +337,7 @@ For a photon at `~/.photon/my-app.photon.ts`:
             └── logo.svg
 ```
 
-Paths in `@ui` are relative to the asset folder (`~/.photon/my-app/`), not to the photon file itself.
+`@ui <id>` resolves to `<photon-name>/ui/<id>.html`. The id must match the HTML filename.
 
 ### Two UI Modes
 
@@ -454,7 +457,7 @@ Multiple methods can share the same HTML template by referencing the same `@ui` 
 
 ```typescript
 /**
- * @ui dashboard ./ui/dashboard.html
+ * @ui dashboard
  */
 export default class Analytics {
   /** @ui dashboard */
@@ -490,7 +493,7 @@ All communication goes through the `postMessage` bridge (abstracted by `window.p
 
 ```typescript
 /**
- * @ui dashboard ./ui/dashboard.html
+ * @ui dashboard
  */
 export default class Analytics {
   /**
@@ -577,7 +580,7 @@ For long-running photons (messaging, orchestration, scheduling), the UI acts as 
 
 ```typescript
 /**
- * @ui dashboard ./ui/dashboard.html
+ * @ui dashboard
  * @stateful
  */
 export default class MyService extends Photon {
@@ -650,7 +653,7 @@ Use `@internal` + `@audience user` to create methods the dashboard can call but 
 
 ```typescript
 /**
- * @ui dashboard ./ui/dashboard.html
+ * @ui dashboard
  * @stateful
  */
 export default class MyService extends Photon {

@@ -373,12 +373,21 @@ Format: `owner/repo/photon-name`. Transitive `@photon` dependencies from the sam
 Link HTML files as interactive result renderers:
 
 ```typescript
-/** @ui dashboard ./ui/dashboard.html */
+/** @ui dashboard */
 export default class MyApp extends Photon {
   /** @ui dashboard */
   async getData({ range }: { range: string }) { return { metrics: 42 }; }
 }
 ```
+
+**Convention:** `@ui <id>` resolves to `<photon>/ui/<id>.html`. The id MUST match the HTML filename.
+
+```
+@ui dashboard  → my-app/ui/dashboard.html  ✓
+@ui slides     → slides/ui/slides.html     ✓
+```
+
+Text after the id is treated as a description, NOT a file path.
 
 The UI gets a photon-named global proxy: `window.myApp.getData(...)`, `window.myApp.onResult(...)`.
 
