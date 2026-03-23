@@ -421,43 +421,63 @@ For the full convention, see [Directory Structure](references/directory-structur
 
 ## Validating Photon UIs — Promise Checking
 
-Every `@ui` photon makes promises through its backend methods. The UI must consume them.
+Every `@ui` photon makes implicit promises through its backend methods. The UI must deliver on them.
 
-### Automated Gap Detection
+### The Principle
 
-After creating or modifying any photon with `@ui`, run this check:
+A photon's backend methods are its capabilities. The UI is the interface to those capabilities. If a method exists but the UI has no way to trigger it, that's a broken promise.
 
-1. **Extract backend methods** — grep the `.photon.ts` for public methods, note `@ui`, `@audience user`, `@readOnly`, `@autorun`
-2. **Extract UI consumption** — grep the HTML template for `window["photonName"].methodName()` or `window.photon.callTool()` calls
-3. **Compare** — any method the backend exposes but the UI doesn't call is a gap
+Three signal levels:
 
-Key rule: if a method has `@audience user` or `@ui <id>`, the UI MUST have a control that triggers it. If it doesn't, either add the control or mark the method `@internal`.
+| Signal | Meaning |
+|--------|---------|
+| `@ui <id>` on a method | This method's result is rendered by the UI — the UI MUST handle it |
+| `@audience user` | Result is for the human, not the LLM — the UI SHOULD surface it |
+| Public method (no `@internal`) | Capability exists — the UI or CLI should make it accessible |
+
+If a method is public but the UI doesn't use it, either:
+- Add a UI control for it, or
+- Mark it `@internal` to be honest about what's exposed
 
 ### Promise Documentation
 
-Every `@ui` photon MUST have a `## UI Promises` section in its docblock:
+Every `@ui` photon should have a `## UI Promises` section in its class docblock:
 
 ```typescript
 /**
+ * Slides — AI-Native Presentation Tool
+ *
  * ## UI Promises
  *
- * - Feature 1 description
- * - Feature 2 description
+ * - Filmstrip with thumbnails for slide navigation
+ * - Drag-and-drop to reorder slides
+ * - Theme selector (default, gaia, uncover)
+ * - Fullscreen presentation with scaled slides
+ * - Markdown editor with live preview
+ * - Speaker notes editor
+ * - Deck picker to switch or create presentations
  */
 ```
 
-This is the acceptance criteria. Before marking done, every promise must be verified.
+These are the acceptance criteria. Each line is a testable claim. Validation means checking every claim is true.
 
-### Testing Workflow
+### Gap Detection
 
-1. **Visual QA** (cosmetic): `photon cli visual-qa review --image <screenshot>` — catches layout bugs, contrast issues, broken rendering
-2. **Promise check** (functional): compare backend methods vs UI consumption — catches missing features
-3. **Manual walkthrough** (UX): use agent-browser to click every button, test every state (empty, loaded, error, fullscreen) — catches interaction bugs
-4. **Self-improvement**: feed issues to `photon cli autoloop` — evolves quality over time
+To validate, compare two lists:
 
-**IMPORTANT**: Visual QA alone is insufficient. It scores cosmetics, not functionality. A UI can score 95/100 visually while missing half its features. Always run all three checks.
+1. **Backend capabilities** — all public methods in the `.photon.ts`, especially those tagged `@ui` or `@audience user`
+2. **UI consumption** — all method calls in the HTML template (e.g., `window["slides"].move(...)`)
 
-See [Validation Reference](references/validation.md) for the full checklist.
+Any method in list 1 but not in list 2 is a gap. Any promise in the docblock that has no corresponding UI control is a broken promise.
+
+### Two Layers of Quality
+
+| Layer | What it catches | What it misses |
+|-------|----------------|----------------|
+| **Cosmetic** (screenshot review) | Broken layout, contrast, overflow, clipping | Missing features, interaction bugs |
+| **Functional** (promise check) | Missing features, unconsumed methods, state gaps | Subtle visual bugs |
+
+Both layers are needed. A UI can look perfect while missing half its features.
 
 ## References
 

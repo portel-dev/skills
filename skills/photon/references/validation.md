@@ -1,87 +1,67 @@
 # Photon Validation — Promise Checking
 
-Every photon with a `@ui` tag makes implicit promises through its backend methods. The UI must consume these methods. If a method exists but the UI doesn't use it, that's a gap.
+## Core Idea
 
-## Automated Promise Check
+A photon's backend methods are its **capabilities**. Its `@ui` template is the **interface** to those capabilities. Its docblock `## UI Promises` section is the **contract**. Validation means checking the interface delivers on the contract.
 
-Run this validation after creating or modifying any photon with `@ui`:
+## Promise Signals
 
-### Step 1: Extract Backend Promises
+The backend declares promises through annotations:
 
-Parse the `.photon.ts` file for all public methods and their annotations:
+| Annotation | Promise |
+|-----------|---------|
+| `@ui <id>` on class | This photon has a visual interface |
+| `@ui <id>` on method | This method's result is rendered in the UI |
+| `@autorun` | This method runs automatically when the UI opens |
+| `@audience user` | The result is for the human — the UI should show it |
+| `@readOnly` | Safe to call repeatedly — UI can poll/refresh |
+| Public method (no `@internal`) | This capability is accessible |
 
-```bash
-# List all methods with their annotations
-grep -E '^\s+(async\s+)?\w+\(' <photon>.photon.ts | grep -v private | grep -v '//'
+## Gap Detection
+
+Compare:
+
+**What the backend provides:**
+- All public methods and their annotations
+- The `## UI Promises` docblock section
+
+**What the UI consumes:**
+- Method calls in the HTML template (`window["photon"].method()`)
+- Event handlers (`window.photon.onResult()`, `window.photon.onEmit()`)
+- Interactive controls (buttons, inputs, dropdowns)
+
+**Gaps are:**
+- A public `@ui` method with no corresponding UI call
+- A `## UI Promises` line with no corresponding UI feature
+- A backend capability (e.g., `move`, `reorder`) with no UI control
+- A UI state (empty, error, loading) with no handling
+
+## Writing Good Promises
+
+Promises should be **specific and testable**, not vague:
+
+```
+BAD:  "Rich editing experience"
+GOOD: "Click any paragraph to edit it inline"
+
+BAD:  "Presentation management"
+GOOD: "Drag-and-drop to reorder slides in the filmstrip"
+
+BAD:  "File support"
+GOOD: "File picker overlay to browse, search, and create documents"
 ```
 
-Key signals:
-- `@ui <id>` on a method → UI MUST handle this method's result
-- `@audience user` → result is for the UI, not the LLM
-- `@readOnly` → safe to call on load / auto-refresh
-- `@autorun` → UI should call this automatically on open
-- No `@internal` → method should be accessible somewhere (UI or CLI)
-
-### Step 2: Extract UI Consumption
-
-Parse the HTML template for method calls:
-
-```bash
-# Find which backend methods the UI calls
-grep -oE 'window\["[^"]+"\]\.\w+|docsApp\.\w+|app\.\w+' <photon>/ui/<id>.html | sort -u
-```
-
-Also check for:
-- `window.photon.onResult()` — handles live results
-- `window.photon.onEmit()` — handles events
-- `window.photon.callTool('methodName', {})` — explicit tool calls
-
-### Step 3: Gap Detection
-
-Compare the two lists. Report:
-- **Unconsumed methods**: Backend has them, UI doesn't call them
-- **Missing UI controls**: Method exists (e.g., `move`, `reorder`) but no button/interaction triggers it
-- **State gaps**: UI doesn't handle all states (empty, loading, error, full)
-
-### Step 4: Functional Testing
-
-For each consumed method, verify it actually works:
-1. Open the photon in Beam
-2. Use agent-browser to interact with every button/control
-3. Verify the backend method is called and the UI updates
-4. Test edge cases: empty state, full state, error state
-
-## Promise Documentation
-
-Every photon with `@ui` should have a `## UI Promises` section in its docblock listing what the UI delivers. This becomes the acceptance criteria for validation.
-
-Example:
-```typescript
-/**
- * Slides — AI-Native Presentation Tool
- *
- * ## UI Promises
- *
- * - Filmstrip sidebar with slide thumbnails
- * - Drag-and-drop to reorder slides
- * - Theme selector dropdown
- * - Fullscreen presentation with scaled slides
- * - Speaker notes editor
- * - Deck picker to switch presentations
- */
-```
+Each promise should map to a concrete UI element or interaction.
 
 ## Validation Checklist
 
 Before marking any `@ui` photon as done:
 
-- [ ] All public methods are consumed by the UI or have `@internal`
-- [ ] All `@audience user` methods have UI controls
-- [ ] Empty states are handled (no blank panels)
-- [ ] Error states show meaningful messages
-- [ ] Loading states have indicators
-- [ ] Fullscreen/responsive works
-- [ ] All toolbar buttons function
-- [ ] File/instance picker works
-- [ ] visual-qa scores 90+ with zero false positives
-- [ ] Manual click-through of every feature via agent-browser
+- [ ] Every `## UI Promises` line has a working UI feature
+- [ ] Every `@ui` method is called by the HTML template
+- [ ] Every `@audience user` method has a visible UI control
+- [ ] Empty state is handled (not blank panels)
+- [ ] Error state shows a meaningful message
+- [ ] All toolbar/control buttons function
+- [ ] Responsive layout works (no overflow, no clipping)
+- [ ] Screenshot review shows no cosmetic bugs
