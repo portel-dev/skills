@@ -1,9 +1,9 @@
 ---
 name: photon
-description: "Build Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar, slides), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, user-configurable settings (protected settings), this.render() for live output, photon build for standalone binaries, mermaid diagrams for photon architecture, editing .photon.ts files, @auth for MCP OAuth identity (this.caller), identity-aware locks for multiplayer/turn-based photons, @format slides for Marp-style presentations. DO NOT trigger for general TypeScript or non-photon MCP."
+description: "Build, test, validate, and improve Photon MCPs — single-file TypeScript MCP servers. Use for creating photons with @format annotations (table, chart:bar, slides), stateful photons using this.memory for persistent storage, photons with @readOnly/@destructive annotations, custom UI using @ui tags/HTML templates, photons wrapping APIs (Stripe, payments), task scheduler photons with cron, user-configurable settings (protected settings), this.render() for live output, photon build for standalone binaries, mermaid diagrams for photon architecture, editing .photon.ts files, @auth for MCP OAuth identity (this.caller), identity-aware locks for multiplayer/turn-based photons, @format slides for Marp-style presentations. Also use for validating photon UIs (promise checking, visual QA, functional testing), improving photon quality via autoloop, and auditing whether a UI consumes all backend methods. DO NOT trigger for general TypeScript or non-photon MCP."
 ---
 
-# Photon Development Guide
+# Photon Lifecycle Guide
 
 Photons are single-file TypeScript MCP servers. No compilation — runs directly with `tsx`.
 
@@ -419,6 +419,46 @@ const dataDir = path.join(os.homedir(), '.photon', 'my-app', 'downloads');
 
 For the full convention, see [Directory Structure](references/directory-structure.md).
 
+## Validating Photon UIs — Promise Checking
+
+Every `@ui` photon makes promises through its backend methods. The UI must consume them.
+
+### Automated Gap Detection
+
+After creating or modifying any photon with `@ui`, run this check:
+
+1. **Extract backend methods** — grep the `.photon.ts` for public methods, note `@ui`, `@audience user`, `@readOnly`, `@autorun`
+2. **Extract UI consumption** — grep the HTML template for `window["photonName"].methodName()` or `window.photon.callTool()` calls
+3. **Compare** — any method the backend exposes but the UI doesn't call is a gap
+
+Key rule: if a method has `@audience user` or `@ui <id>`, the UI MUST have a control that triggers it. If it doesn't, either add the control or mark the method `@internal`.
+
+### Promise Documentation
+
+Every `@ui` photon MUST have a `## UI Promises` section in its docblock:
+
+```typescript
+/**
+ * ## UI Promises
+ *
+ * - Feature 1 description
+ * - Feature 2 description
+ */
+```
+
+This is the acceptance criteria. Before marking done, every promise must be verified.
+
+### Testing Workflow
+
+1. **Visual QA** (cosmetic): `photon cli visual-qa review --image <screenshot>` — catches layout bugs, contrast issues, broken rendering
+2. **Promise check** (functional): compare backend methods vs UI consumption — catches missing features
+3. **Manual walkthrough** (UX): use agent-browser to click every button, test every state (empty, loaded, error, fullscreen) — catches interaction bugs
+4. **Self-improvement**: feed issues to `photon cli autoloop` — evolves quality over time
+
+**IMPORTANT**: Visual QA alone is insufficient. It scores cosmetics, not functionality. A UI can score 95/100 visually while missing half its features. Always run all three checks.
+
+See [Validation Reference](references/validation.md) for the full checklist.
+
 ## References
 
 | Topic | When to Read |
@@ -434,3 +474,4 @@ For the full convention, see [Directory Structure](references/directory-structur
 | [Mermaid Syntax](references/mermaid-syntax.md) | Flowchart shapes, arrows, subgraphs |
 | [Photon Patterns](references/photon-patterns.md) | Common emit/ask/yield patterns with Mermaid equivalents |
 | [Examples](references/examples.md) | Complete Photon-to-Mermaid conversion examples |
+| [Validation](references/validation.md) | Promise checking, gap detection, UI testing checklist |
