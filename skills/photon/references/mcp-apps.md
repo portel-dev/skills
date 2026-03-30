@@ -344,9 +344,36 @@ For a photon at `~/.photon/my-app.photon.ts`:
 | Extension | Mode | Behavior |
 |-----------|------|----------|
 | `.photon.html` | **Declarative** | Fragment auto-wrapped with base CSS, data attributes bind to methods |
+| `.photon.md` | **Markdown** | Markdown with inline HTML, parsed to HTML then treated as declarative |
 | `.html` | **Full control** | Bridge injected, you write all JavaScript |
 
-When both exist for the same name, `.photon.html` takes priority.
+Resolution priority: `.photon.html` > `.photon.md` > `.html`
+
+### Markdown Templates (.photon.md)
+
+Same as `.photon.html` but authored in markdown. HTML tags pass through untouched, so `data-method` attributes work inline with markdown prose. Great for documentation dashboards and rich layouts.
+
+```markdown
+# Dashboard
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+<div style="padding: 16px;">
+
+## Tasks
+<div data-method="list" data-format="checklist"></div>
+
+</div>
+
+<div style="padding: 16px;">
+
+## Stats
+<div data-method="stats" data-format="metric"></div>
+
+</div>
+
+</div>
+```
 
 ### Declarative Templates (.photon.html)
 

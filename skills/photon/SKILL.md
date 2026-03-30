@@ -145,6 +145,8 @@ Use `@format` to control rendering. Common values:
 |--------|---------|
 | `table` | Array of objects |
 | `list` | Styled list with `{@title name, @subtitle email}` |
+| `checklist` | Interactive todo list — `{text, done}[]` with checkboxes, drag reorder |
+| `article` | Magazine-style text flow around images — `{text, images?[]}` |
 | `markdown` | Rich text, diagrams |
 | `slides` | Marp-style presentation deck |
 | `chart:bar` / `chart:line` / `chart:pie` | Data visualization |

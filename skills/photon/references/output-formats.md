@@ -12,6 +12,8 @@ Use `@format` on methods to control how results render in Beam UI and CLI.
 | `grid` | Visual grid | `[{ title: "...", image: "..." }]` |
 | `tree` | Hierarchical data | `{ children: [...] }` |
 | `card` | Single object as card | `{ title: "...", body: "..." }` |
+| `checklist` | Interactive checkbox list with drag reorder | `[{ text: "Ship v2", done: false }]` |
+| `article` | Magazine-style text flow around images | `{ text: "...", images?: [{ url, position?, caption? }] }` |
 | `steps` / `stepper` | Step-by-step progress indicator | `[{ label: "Install", status: "complete" }]` |
 | `kanban` | Kanban board with columns and cards | `{ columns: [{ title: "Todo", items: [...] }] }` |
 | `comparison` | Side-by-side property comparison | `{ items: [{ name: "A", price: "$9" }], highlight: "A" }` |
@@ -120,6 +122,94 @@ footer: Acme Corp © 2026
 **Keyboard:** ← → Space PgUp PgDn Home End for navigation, F for fullscreen.
 
 **Auto-detection:** Returns a string with `marp: true` frontmatter or 3+ `---` separators → auto-detected as slides.
+
+## Checklist Format
+
+Interactive todo/task list with checkboxes, drag reorder, and progress tracking.
+
+```typescript
+/**
+ * @format checklist
+ * @stateful
+ */
+list() {
+  return this.items; // [{text: string, done: boolean}]
+}
+```
+
+**Data shape:** `{text, done}[]` — array position is the order.
+
+**Features:**
+- Custom checkboxes (not native) with accent fill and SVG checkmark
+- Done items sink below a "Completed (N)" separator
+- "Hide completed" / "Show completed" toggle
+- Progress bar showing done/total ratio
+- Drag-and-drop reorder with 6-dot grip handle
+- Interactive: clicking a checkbox calls `check` method on the photon
+- Auto-detected from any `{text, done}[]` data shape (also detects `title`/`name` + `completed`/`checked` variants)
+
+**CLI rendering:** ASCII checkboxes with strikethrough:
+```
+2/3 done
+
+  ○ Ship v2.0
+  ○ Write blog post
+  ✓ Record demo
+```
+
+## Article Format
+
+Magazine-style text layout with images and multi-column support.
+
+```typescript
+/** @format article */
+sample() {
+  return {
+    text: "The future of...",
+    images: [
+      { url: "https://...", width: 280, height: 210, position: "right", caption: "AI interfaces" }
+    ]
+  };
+}
+```
+
+**Data shape:** `{text: string, images?: [{url, width?, height?, position?: 'left'|'right', caption?}]}`
+
+**Rendering:**
+- With images: text flows around positioned images using CSS float (Pretext Canvas path available for advanced layouts)
+- Without images: automatic two-column layout with column-rule divider
+- Drop cap on first paragraph
+- Powered by @chenglou/pretext for DOM-free text measurement
+
+## .photon.md Files
+
+Markdown files with live data-method embeds. Same syntax as .photon.html but authored in markdown.
+
+```markdown
+# Dashboard
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+<div style="padding: 16px;">
+
+## Tasks
+<div data-method="list" data-format="checklist"></div>
+
+</div>
+
+<div style="padding: 16px;">
+
+## Stats
+<div data-method="stats" data-format="metric"></div>
+
+</div>
+
+</div>
+```
+
+Place in `<photon-name>/ui/<id>.photon.md`. Reference with `@ui <id> ./ui/<id>.photon.md`.
+
+File resolution priority: `.photon.html` > `.photon.md` > `.html`
 
 ## Container Formats
 
