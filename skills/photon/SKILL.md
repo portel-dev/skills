@@ -359,16 +359,35 @@ photon build my-tool --with-app              # Embed Beam UI as a desktop app
 
 Uses Bun's compiler. The binary bundles the photon, its `@dependencies`, and transitive `@photon` deps.
 
-## Install from GitHub *(v1.14+)*
+## Installing Photons
 
-Use qualified refs to install and run photons directly from any GitHub repository:
+### From Marketplace (`photon add`)
 
 ```bash
-photon beam Arul-/photons/claw        # Install from GitHub, open in Beam
-photon cli Arul-/photons/todo add     # Install from GitHub, run method
+photon add claw                        # Search all marketplaces for "claw"
+photon add claw --marketplace photons  # From a specific marketplace
+photon add claw -y                     # Auto-select first match
 ```
 
-Format: `owner/repo/photon-name`. Transitive `@photon` dependencies from the same repo are resolved automatically.
+`photon add` searches configured marketplaces by **name** (not path). If a photon has `@photon` dependencies, they are **auto-installed** from the same marketplace recursively.
+
+Manage marketplaces:
+```bash
+photon marketplace add Arul-/photons   # Add a GitHub repo as marketplace
+photon marketplace update              # Refresh all marketplace caches
+photon marketplace list                # Show configured marketplaces
+```
+
+### From GitHub (direct run)
+
+Use `owner/repo/photon-name` to install and run directly from any GitHub repository:
+
+```bash
+photon beam Arul-/photons/claw         # Install from GitHub, open in Beam
+photon cli Arul-/photons/todo add      # Install from GitHub, run method
+```
+
+Transitive `@photon` dependencies from the same repo are resolved automatically.
 
 ## Custom UIs
 
