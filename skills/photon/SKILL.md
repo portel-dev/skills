@@ -361,33 +361,30 @@ Uses Bun's compiler. The binary bundles the photon, its `@dependencies`, and tra
 
 ## Installing Photons
 
-### From Marketplace (`photon add`)
+### `photon add` — Install a photon
 
 ```bash
-photon add claw                        # Search all marketplaces for "claw"
-photon add claw --marketplace photons  # From a specific marketplace
-photon add claw -y                     # Auto-select first match
+photon add claw                        # Search all marketplaces by name
+photon add my-marketplace/claw         # From a specific marketplace
+photon add Arul-/photons/claw          # From a GitHub repo (owner/repo/name)
 ```
 
-`photon add` searches configured marketplaces by **name** (not path). If a photon has `@photon` dependencies, they are **auto-installed** from the same marketplace recursively.
+If a photon has `@photon` dependencies, they are **auto-installed** from the same source recursively.
 
-Manage marketplaces:
+### `photon beam` / `photon cli` — Run directly from GitHub
+
 ```bash
-photon marketplace add Arul-/photons   # Add a GitHub repo as marketplace
+photon beam Arul-/photons/claw         # Install + open in Beam
+photon cli Arul-/photons/todo add      # Install + run method
+```
+
+### Manage marketplaces
+
+```bash
+photon marketplace add Arul-/photons   # Add a GitHub repo as marketplace source
 photon marketplace update              # Refresh all marketplace caches
 photon marketplace list                # Show configured marketplaces
 ```
-
-### From GitHub (direct run)
-
-Use `owner/repo/photon-name` to install and run directly from any GitHub repository:
-
-```bash
-photon beam Arul-/photons/claw         # Install from GitHub, open in Beam
-photon cli Arul-/photons/todo add      # Install from GitHub, run method
-```
-
-Transitive `@photon` dependencies from the same repo are resolved automatically.
 
 ## Custom UIs
 
