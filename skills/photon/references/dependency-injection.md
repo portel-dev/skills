@@ -35,16 +35,43 @@ export default class FileProcessor extends Photon {
 
 **Always prefer constructor injection over `this.call()`.** It makes dependencies explicit, typed, composable, and visible in the docblock.
 
-**Syntax:** `@photon <paramName> <source>[:instanceName]`
+**Syntax:** `@photon <constructor-param> <photon-to-install>`
 
-| Source Format | Type | Example |
-|--------------|------|---------|
-| `name` | Marketplace (auto-installed) | `@photon billing billing` |
-| `owner/repo/name` | GitHub (auto-fetched) | `@photon billing Arul-/photons/billing` |
-| `namespace:name` | Specific marketplace | `@photon billing portel-dev:billing` |
-| `name:instance` | Named instance | `@photon homeTodos todo:home` |
+- **First value** = the constructor parameter name that receives the injected photon instance
+- **Second value** = which photon to install and inject (by marketplace name or qualified path)
 
-**Always use marketplace names** — never relative paths. Dependencies are auto-installed from the same marketplace when the photon is installed.
+```
+@photon whatsapp whatsapp
+        ─────┬── ────┬────
+             │       └─ photon to install (marketplace name "whatsapp")
+             └───────── constructor param: private whatsapp: any
+
+@photon router agent-router
+        ──┬── ─────┬──────
+          │        └─ photon to install (marketplace name "agent-router")
+          └────────── constructor param: private router: any
+```
+
+The two values differ when the photon name doesn't match your preferred variable name. If they're the same (e.g., `@photon whatsapp whatsapp`), both values are identical.
+
+**Source formats for the second value:**
+
+| Format | Meaning | Example |
+|--------|---------|---------|
+| `name` | From same marketplace | `@photon db postgres` |
+| `marketplace/name` | From specific marketplace | `@photon db portel-dev/postgres` |
+| `owner/repo/name` | From GitHub repo | `@photon db Arul-/photons/postgres` |
+
+**Named instances** — append `:instanceName` to run multiple instances of the same photon:
+
+```
+@photon homeTodos todo:home
+@photon workTodos todo:work
+```
+
+Both inject the `todo` photon but as separate instances named `home` and `work`.
+
+Dependencies are **auto-installed** from the same marketplace when the photon is installed.
 
 ```typescript
 /**
