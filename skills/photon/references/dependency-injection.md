@@ -35,12 +35,23 @@ export default class FileProcessor extends Photon {
 
 **Always prefer constructor injection over `this.call()`.** It makes dependencies explicit, typed, composable, and visible in the docblock.
 
+**Syntax:** `@photon <paramName> <source>[:instanceName]`
+
+| Source Format | Type | Example |
+|--------------|------|---------|
+| `name` | Marketplace (auto-installed) | `@photon billing billing` |
+| `owner/repo/name` | GitHub (auto-fetched) | `@photon billing Arul-/photons/billing` |
+| `namespace:name` | Specific marketplace | `@photon billing portel-dev:billing` |
+| `name:instance` | Named instance | `@photon homeTodos todo:home` |
+
+**Always use marketplace names** — never relative paths. Dependencies are auto-installed from the same marketplace when the photon is installed.
+
 ```typescript
 /**
  * Orchestrator — composes billing and shipping photons
  *
- * @photon billing ./billing.photon.ts
- * @photon shipping ./shipping.photon.ts
+ * @photon billing billing
+ * @photon shipping shipping
  */
 export default class OrderProcessor extends Photon {
   constructor(
@@ -64,8 +75,8 @@ Injected photons emit events on channels. Subscribe via the channel broker:
 import { Photon, getBroker } from '@portel/photon-core';
 
 /**
- * @photon whatsapp ./whatsapp.photon.ts
- * @photon router ./message-router.photon.ts
+ * @photon whatsapp whatsapp
+ * @photon router message-router
  */
 export default class Orchestrator extends Photon {
   constructor(private whatsapp: any, private router: any) { super(); }
