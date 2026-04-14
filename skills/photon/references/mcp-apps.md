@@ -502,7 +502,7 @@ All three methods render inside `dashboard.html`. The UI receives whichever meth
 
 ## Iframe Sandbox
 
-UIs run in a sandboxed iframe with these permissions:
+UIs run in a sandboxed `blob:` iframe with these permissions:
 ```
 allow-scripts allow-forms allow-same-origin allow-popups allow-modals
 ```
@@ -513,6 +513,30 @@ The sandbox prevents:
 - Navigating the parent page
 
 All communication goes through the `postMessage` bridge (abstracted by `window.photon`).
+
+### Sandbox Constraints — What Won't Work
+
+The `blob:` origin is required so the same UI works in every MCP client (Beam, Claude Desktop, ChatGPT, Cursor). That portability has real costs. The following commonly fail inside photon UIs:
+
+- **Cross-origin `fetch()`** — origin is opaque/null; many CDNs (HuggingFace, jsdelivr) reject CORS. Model weights and remote assets often won't load.
+- **SharedArrayBuffer / threaded WASM** — requires Cross-Origin-Isolated (COOP/COEP), which hosts don't set. Rules out WebLLM and threaded ONNX Runtime Web.
+- **WebGPU, camera, microphone** — permission delegation is host-dependent and not guaranteed portable.
+- **Dynamic `import()` / `importScripts` over http(s)** — often blocked from `blob:` contexts.
+- **Persistent IndexedDB / Cache Storage** — scoped to the opaque origin, may not survive across sessions.
+
+### Mitigation Strategies (Author's Choice)
+
+If a feature needs something the sandbox blocks, pick one up front:
+
+1. **Backend inference (recommended default).** Run heavy work in a photon method using Node/Bun libraries (`onnxruntime-node`, `@xenova/transformers`, `sharp`). The UI stays a pure renderer. Works in every MCP client.
+2. **Proxy assets through a photon method.** Expose a method that returns remote bytes; the UI calls it via `window.photon` instead of `fetch()`. Sidesteps CORS.
+3. **Inline small assets as data URIs.** For sub-few-MB models/datasets, base64-embed into the HTML. Zero fetches, fully portable.
+4. **Accept single-threaded WASM.** Detection-class models (MediaPipe Tasks, small ONNX via transformers.js) work fine single-threaded. Slower but portable.
+5. **Beam-only enhancement.** Only if genuinely unavoidable, document the feature as Beam-only in the photon README. Core experience must still work in other clients.
+
+**Rule of thumb:** if in doubt, do it on the backend. The `@ui` HTML is a renderer, not an application runtime.
+
+See also: [CUSTOM-UI.md → Sandbox Constraints](https://github.com/portel-dev/photon/blob/main/docs/guides/CUSTOM-UI.md#sandbox-constraints) in the photon repo.
 
 ## Common Patterns
 
