@@ -14,7 +14,7 @@ Preview of upcoming photon runtime capabilities. When skill authors see these ta
 | `@webhook` | **Hidden** | HTTP-only endpoint. |
 | `@scheduled` | Visible | Runs on schedule AND user-callable. |
 | `@internal` | Hidden | Opt-out. Composes with any ingress. |
-| Lifecycle (`onStart`, etc.) | Hidden | Runtime-only. |
+| Lifecycle hooks | Hidden | Runtime-only. |
 
 Compose by stacking tags:
 
@@ -28,22 +28,37 @@ async nightlyCleanup() { ... }   // scheduled + hidden from MCP
 
 ## Lifecycle hooks
 
-Four reserved method names. All optional, all async, all hidden from MCP.
+### Existing (already shipped, do not rename)
+
+Photons already have two lifecycle hooks. This design does **not** change them.
 
 ```ts
 class MyPhoton extends Photon {
-  async onStart()  { /* async init: DB, external subs, cache warm-up */ }
-  async onStop()   { /* flush, close, cancel — runs on SIGTERM/unload */ }
-  async onReload() { /* hot-reload rebind without losing state */ }
+  async onInitialize() { /* async init: DB, external subs, cache warm-up */ }
+  async onShutdown()   { /* flush, close, cancel — runs on SIGTERM/unload */ }
+}
+```
+
+Already wired across both loaders, Beam drain on SIGTERM, hot-reload, and worker-thread auto-detection. Scaffolded by the default photon template.
+
+### New in round 1
+
+Two genuinely new hooks. Both optional, async, hidden from MCP.
+
+```ts
+class MyPhoton extends Photon {
+  async onReload() { /* rebind without full teardown, preserve state */ }
   async onError(err, ctx) { /* centralized error observability */ }
 }
 ```
 
-- `onStart` fires eagerly in Beam, lazily in CLI (before first invocation).
-- `onStop` has a bounded timeout (10s default) so shutdown cannot hang.
-- `@photon` dependencies start in dependency order; stop in reverse.
+- `onReload` — opt-in alternative to the default `onShutdown(old) → onInitialize(new)` hot-reload path. Keeps the existing instance alive and lets it rebind without losing in-memory state (open streams, active subscriptions, warmed caches). Photons that don't define it keep today's full-teardown behavior.
+- `onError(err, ctx)` — fires after any method throws. Observability only; cannot suppress or transform the error. A throw inside `onError` is logged and swallowed.
 
-Use lifecycle hooks whenever the constructor would need to be `async` — that's the signal.
+### Ordering with `@photon` deps
+
+- `onInitialize` and `onReload` fire in dependency order (deps first).
+- `onShutdown` fires in reverse (dependents first).
 
 ---
 
@@ -104,14 +119,16 @@ Use cron for complex schedules, the natural forms for readability on common case
 
 ## Skill-author checklist
 
-When helping photon authors, check for these patterns and route them to the new primitives:
+When helping photon authors, check for these patterns and route them to the right primitives:
 
-1. **Async setup in constructor** → use `onStart`.
-2. **Cleanup code in a `dispose`/`close` method called from nowhere** → move to `onStop`.
-3. **`handle*` methods** → add explicit `@webhook`; migration required before next major.
-4. **`@cron`** → prefer `@scheduled`; alias still works.
-5. **Webhook with HMAC verification inside the method body** → move to declarative `@webhook-auth`.
-6. **`PHOTON_WEBHOOK_SECRET` in production** → upgrade to per-method `@webhook-auth`.
+1. **Async setup in constructor** → use `onInitialize` (already available).
+2. **Cleanup in a `dispose`/`close` method called from nowhere** → move to `onShutdown` (already available).
+3. **Photon that needs to survive hot-reload with live connections** → define `onReload` (round 1 new).
+4. **Per-method try/catch for logging** → consider `onError` instead (round 1 new).
+5. **`handle*` methods** → add explicit `@webhook`; migration required before next major.
+6. **`@cron`** → prefer `@scheduled`; alias still works.
+7. **Webhook with HMAC verification inside the method body** → move to declarative `@webhook-auth`.
+8. **`PHOTON_WEBHOOK_SECRET` in production** → upgrade to per-method `@webhook-auth`.
 
 ---
 
