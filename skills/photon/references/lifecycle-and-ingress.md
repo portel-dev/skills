@@ -43,21 +43,41 @@ Already wired across both loaders, Beam drain on SIGTERM, hot-reload, and worker
 
 ### New in round 1
 
-Two genuinely new hooks. Both optional, async, hidden from MCP.
+One genuinely new hook. Optional, async, hidden from MCP.
 
 ```ts
 class MyPhoton extends Photon {
-  async onReload() { /* rebind without full teardown, preserve state */ }
   async onError(err, ctx) { /* centralized error observability */ }
 }
 ```
 
-- `onReload` — opt-in alternative to the default `onShutdown(old) → onInitialize(new)` hot-reload path. Keeps the existing instance alive and lets it rebind without losing in-memory state (open streams, active subscriptions, warmed caches). Photons that don't define it keep today's full-teardown behavior.
-- `onError(err, ctx)` — fires after any method throws. Observability only; cannot suppress or transform the error. A throw inside `onError` is logged and swallowed.
+- `onError(err, ctx)` — fires after any tool method throws. Observability only; cannot suppress or transform the error. A throw or timeout inside `onError` is logged and swallowed. Default timeout is 5s.
+
+### State preservation across hot reload (existing, now consistent)
+
+No new hook for state-preserving reload — the existing hooks already support it via context parameters:
+
+```ts
+class MyPhoton extends Photon {
+  async onShutdown(ctx) {
+    if (ctx?.reason === 'hot-reload') return; // skip destructive cleanup
+    await this.socket?.close();
+  }
+  async onInitialize(ctx) {
+    if (ctx?.reason === 'hot-reload' && ctx.oldInstance?.socket) {
+      this.socket = ctx.oldInstance.socket; // reuse the live socket
+      return;
+    }
+    this.socket = await openSocket();
+  }
+}
+```
+
+Non-function own properties are auto-transferred from `oldInstance` to the new instance, so only non-copyable resources (sockets, timers, DB connections) need explicit handling. The daemon hot-reload path already passed this context; round 1 fixes the Beam hot-reload path to match.
 
 ### Ordering with `@photon` deps
 
-- `onInitialize` and `onReload` fire in dependency order (deps first).
+- `onInitialize` fires in dependency order (deps first).
 - `onShutdown` fires in reverse (dependents first).
 
 ---
@@ -123,7 +143,7 @@ When helping photon authors, check for these patterns and route them to the righ
 
 1. **Async setup in constructor** → use `onInitialize` (already available).
 2. **Cleanup in a `dispose`/`close` method called from nowhere** → move to `onShutdown` (already available).
-3. **Photon that needs to survive hot-reload with live connections** → define `onReload` (round 1 new).
+3. **Photon that needs to survive hot-reload with live connections** → branch on `ctx?.reason === 'hot-reload'` in `onInitialize`/`onShutdown`; use `ctx.oldInstance` to reuse non-copyable resources.
 4. **Per-method try/catch for logging** → consider `onError` instead (round 1 new).
 5. **`handle*` methods** → add explicit `@webhook`; migration required before next major.
 6. **`@cron`** → prefer `@scheduled`; alias still works.
