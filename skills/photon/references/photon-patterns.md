@@ -416,6 +416,36 @@ ERROR_TOAST --> FAILED([❌ Failed])
 
 ---
 
+## Path Resolution
+
+### Use `this.callerCwd`, not `process.cwd()`
+
+When a photon needs to resolve a relative path the user typed on the CLI (e.g. `photon my-photon read ./notes.md`), use `this.callerCwd` rather than `process.cwd()`.
+
+**Why:** the daemon worker thread runs in its own working directory (typically `~/.photon`). `process.cwd()` returns that, not the directory the user invoked the CLI from. The runtime captures the caller's invocation directory and exposes it as `this.callerCwd` on every photon instance.
+
+**Photon:**
+```typescript
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
+
+export default class FileTool {
+  /**
+   * Read a file the user pointed at on the CLI.
+   * @param relativePath - Path relative to where the user invoked photon
+   */
+  async read(relativePath: string): Promise<string> {
+    // Wrong: const abs = path.resolve(process.cwd(), relativePath);
+    const abs = path.resolve(this.callerCwd, relativePath);
+    return fs.readFile(abs, 'utf-8');
+  }
+}
+```
+
+`this.callerCwd` falls back to `process.cwd()` when no caller cwd was provided (e.g. background scheduled runs), so it's always safe to use.
+
+---
+
 ## Async Event Waiting
 
 ### Promise Resolver Pattern

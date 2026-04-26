@@ -510,6 +510,6 @@ Both layers are needed. A UI can look perfect while missing half its features.
 | [MCP Apps](references/mcp-apps.md) | Building custom HTML UIs with the photon bridge |
 | [Visualization](references/visualization.md) | Generating Mermaid diagrams from photons |
 | [Mermaid Syntax](references/mermaid-syntax.md) | Flowchart shapes, arrows, subgraphs |
-| [Photon Patterns](references/photon-patterns.md) | Common emit/ask/yield patterns with Mermaid equivalents |
+| [Photon Patterns](references/photon-patterns.md) | Common emit/ask/yield patterns, path resolution (`this.callerCwd`), Mermaid equivalents |
 | [Examples](references/examples.md) | Complete Photon-to-Mermaid conversion examples |
 | [Validation](references/validation.md) | Promise checking, gap detection, UI testing checklist |
