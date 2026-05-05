@@ -87,6 +87,40 @@ These tags add middleware behavior:
 
 For runtime (dynamic) scheduling, use `this.schedule` API instead — see [Daemon Features](daemon-features.md).
 
+## HTTP Route Tags
+
+Bind a method to an HTTP endpoint that bypasses the MCP tool surface (or sits beside it). Works on `photon sse` (local) and `photon host deploy cloudflare`. Not available over stdio.
+
+| Tag | Description | Example |
+|-----|-------------|---------|
+| `@get /path` | HTTP GET handler. Method receives a Web `Request` and returns a `Response`. NOT registered as an MCP tool — HTTP-only. | `@get /calendar.ics` |
+| `@post /path` | HTTP POST handler. Same shape as `@get`. NOT an MCP tool. | `@post /webhook/stripe` |
+| `@expose` | Auto-bind method to `POST /api/<kebab-method-name>`. Requires browser-set `Sec-Fetch-Site: same-origin`/`same-site` (defends against cross-origin SPAs). The method also stays registered as an MCP tool — same handler reaches AI agents and a same-origin SPA. | `@expose` |
+| `@expose public` | Same as `@expose` but skips the SameSite check — anonymous third-party callers (RSS readers, mobile apps) can hit the endpoint. | `@expose public` |
+
+Pick by intent:
+
+- **`@get` / `@post`** — explicit path, raw `Request`/`Response`. Use when the photon serves something a browser or curl directly consumes (RSS feeds, ICS calendars, Stripe webhooks, OAuth callbacks).
+- **`@expose`** — auto-RPC for a SPA dashboard that talks to the same photon over fetch (`addTask({title})` from JS hits the same handler `tools/call addTask` invokes).
+- **`@expose public`** — same auto-RPC, but the endpoint is on the public internet (RSS, public stats, a free-tier API).
+
+```typescript
+export default class Todo {
+  /** @expose */
+  async addTask(input: { title: string }) {
+    const id = 't_' + Math.random().toString(36).slice(2, 10);
+    return { id, title: input.title };
+  }
+
+  /** @get /api/feed.rss */
+  async feed(_request: Request): Promise<Response> {
+    return new Response('<?xml...>', { headers: { 'content-type': 'application/rss+xml' } });
+  }
+}
+```
+
+On Cloudflare deployments with `@auth cf-access`, each authenticated user's email maps to its own DO instance; `@get`, `@post`, and `@expose` handlers all run on the right instance without extra routing. The same per-claim routing applies on the local `photon sse` server when a photon declares both `@stateful` and `@auth` — each authenticated caller lazy-loads its own photon instance keyed on the bound claim (default `email` for `cf-access`, `sub` for `oauth`).
+
 ## Inline Parameter Tags
 
 Placed within `@param` descriptions using `{@tag}` syntax:
